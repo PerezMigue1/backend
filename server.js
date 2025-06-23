@@ -26,8 +26,12 @@ app.get("/", (req, res) => {
 app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/preguntas', preguntaRecuperacionRoutes);
 
+// Iniciar servidor (solo en desarrollo local)
+if (require.main === module) {
+    app.listen(port, () => {
+        console.log(`🚀 Servidor corriendo en http://localhost:${port}`);
+    });
+}
 
-// Iniciar servidor
-app.listen(port, () => {
-    console.log(`🚀 Servidor corriendo en http://localhost:${port}`);
-});
+// Exportación ESSENCIAL para Vercel
+module.exports = app;
