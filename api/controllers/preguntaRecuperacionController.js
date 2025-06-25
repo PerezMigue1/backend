@@ -1,4 +1,4 @@
-const PreguntaRecuperacion = require("../models/PreguntaRecuperacion");
+const PreguntaRecuperacion = require("../../models/PreguntaRecuperacion");
 
 // Obtener todas las preguntas
 exports.obtenerPreguntas = async (req, res) => {
