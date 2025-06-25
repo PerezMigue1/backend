@@ -12,11 +12,12 @@ const preguntaRoutes = require("./routes/pregunta.routes");
 // Middlewares
 app.use(express.json());
 
-// Configurar CORS
-const allowedOrigins = [process.env.FRONTEND_URL];
+// CORS
 app.use(cors({
-    origin: allowedOrigins,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: [
+        "https://turismo-taupe.vercel.app" // <-- tu dominio frontend en Vercel
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
 
