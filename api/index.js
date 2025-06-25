@@ -22,7 +22,7 @@ app.use(cors({
 }));
 
 // Conexión a MongoDB Atlas
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
@@ -40,5 +40,3 @@ app.get('/', (req, res) => {
 
 // Exportar app para que Vercel lo use como función serverless
 module.exports = app;
-
-//canbios realizados
