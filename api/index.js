@@ -7,8 +7,8 @@ require('dotenv').config(); // si quieres usar .env local
 const app = express();
 
 // Importar rutas
-const usuarioRoutes = require('./routes/usuarioRoutes');
-const preguntaRecuperacionRoutes = require('./routes/preguntaRecuperacionRoutes');
+const usuarioRoutes = require('./routes/usuario.routes');
+//const preguntaRecuperacionRoutes = require('./routes/preguntaRecuperacionRoutes');
 
 // Middlewares
 app.use(express.json());
@@ -26,16 +26,16 @@ mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
-    .then(() => console.log('MongoDB conectada'))
-    .catch(err => console.error('Error al conectar MongoDB:', err));
+    .then(() => console.log("✅ MongoDB conectado"))
+    .catch(err => console.error("❌ Error al conectar MongoDB:", err));
 
 // Rutas
 app.use('/api/usuarios', usuarioRoutes);
-app.use('/api/preguntas', preguntaRecuperacionRoutes);
+//app.use('/api/preguntas', preguntaRecuperacionRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {
-    res.json({ mensaje: 'API en Vercel funcionando!' });
+    res.json({ mensaje: 'API en Vercel funcionando! 🚀' });
 });
 
 // Exportar app para que Vercel lo use como función serverless
