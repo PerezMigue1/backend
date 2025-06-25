@@ -8,8 +8,7 @@ const app = express();
 
 // Importar rutas
 const usuarioRoutes = require('./routes/usuario.routes');
-//const preguntaRecuperacionRoutes = require('./routes/preguntaRecuperacionRoutes');
-
+const preguntaRoutes = require("./routes/pregunta.routes");
 // Middlewares
 app.use(express.json());
 
@@ -31,7 +30,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 // Rutas
 app.use('/api/usuarios', usuarioRoutes);
-//app.use('/api/preguntas', preguntaRecuperacionRoutes);
+app.use('/api/preguntas', preguntaRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {
