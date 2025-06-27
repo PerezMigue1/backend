@@ -210,3 +210,68 @@ exports.eliminarUsuario = async (req, res) => {
         res.status(500).json({ message: "Error en el servidor" });
     }
 };
+
+// ✅ Obtener perfil de usuario
+exports.obtenerPerfilUsuario = async (req, res) => {
+    try {
+        const usuario = await Usuario.findById(req.params.id).select("-password -resetPasswordToken -resetPasswordExpires");
+        if (!usuario) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+        res.json(usuario);
+    } catch (error) {
+        console.error("❌ Error al obtener perfil:", error);
+        res.status(500).json({ message: "Error en el servidor" });
+    }
+};
+
+// ✅ Actualizar perfil de usuario
+exports.actualizarPerfilUsuario = async (req, res) => {
+    try {
+        const camposPermitidos = ['nombre', 'telefono', 'sexo', 'edad'];
+        const actualizaciones = {};
+
+        camposPermitidos.forEach(campo => {
+            if (req.body[campo] !== undefined) {
+                actualizaciones[campo] = req.body[campo];
+            }
+        });
+
+        const usuario = await Usuario.findByIdAndUpdate(req.params.id, actualizaciones, { new: true });
+        if (!usuario) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+
+        res.json({ message: "Perfil actualizado correctamente", usuario });
+    } catch (error) {
+        console.error("❌ Error al actualizar perfil:", error);
+        res.status(500).json({ message: "Error en el servidor" });
+    }
+};
+
+// ✅ Cambiar contraseña desde perfil (requiere contraseña actual)
+exports.cambiarPasswordDesdePerfil = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { actualPassword, nuevaPassword } = req.body;
+
+        const usuario = await Usuario.findById(id);
+        if (!usuario) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+
+        const esValida = await bcrypt.compare(actualPassword, usuario.password);
+        if (!esValida) {
+            return res.status(401).json({ message: "Contraseña actual incorrecta" });
+        }
+
+        usuario.password = await bcrypt.hash(nuevaPassword, 10);
+        await usuario.save();
+
+        res.json({ message: "Contraseña actualizada correctamente" });
+
+    } catch (error) {
+        console.error("❌ Error al cambiar contraseña desde perfil:", error);
+        res.status(500).json({ message: "Error en el servidor" });
+    }
+};
