@@ -32,7 +32,7 @@ mongoose.connect(process.env.MONGODB_URI, {
     .catch(err => console.error("❌ Error al conectar MongoDB:", err));
 
 // Ruta root
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
     res.json({ mensaje: 'API funcionando' });
 });
 
