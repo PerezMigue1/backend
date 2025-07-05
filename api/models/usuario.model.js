@@ -15,7 +15,7 @@ const UsuarioSchema = new mongoose.Schema({
     sexo: { type: String, enum: ["Masculino", "Femenino", "Otro"], required: true },
     edad: { type: Number, required: true },
     recuperacion: { type: PreguntaRecuperacionSchema, required: true },
-    rol: { type: String, default: "turista", enum: ["turista", "miembro"], required: true },
+    rol: { type: String, default: "turista", enum: ["turista", "miembro", "admin"], required: true },
     resetPasswordToken: { type: String, default: null },
     resetPasswordExpires: { type: Date, default: null }
 }, { timestamps: true });

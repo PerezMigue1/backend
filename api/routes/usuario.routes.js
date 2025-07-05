@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const usuarioController = require("../controllers/usuario.controller");
+const { verificarToken, permitirRoles } = require("../middlewares/auth.middleware");
 
 // CRUD + recuperación de contraseña
-router.get("/", usuarioController.obtenerUsuarios);
 router.post("/", usuarioController.crearUsuario);
 router.post("/login", usuarioController.loginUsuario);
 router.post("/pregunta-secreta", usuarioController.obtenerPreguntaRecuperacion);
@@ -18,6 +18,6 @@ router.get("/:id/perfil", usuarioController.obtenerPerfilUsuario);
 // Actualizar perfil de usuario por ID
 router.put("/:id/perfil", usuarioController.actualizarPerfilUsuario);
 
-router.put("/usuarios/:id/cambiar-password", usuarioController.cambiarPasswordDesdePerfil);
+router.put("/:id/cambiar-password", usuarioController.cambiarPasswordDesdePerfil);
 
 module.exports = router;

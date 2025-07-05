@@ -1,6 +1,7 @@
 const Usuario = require("../models/usuario.model");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 
 // ✅ Obtener todos los usuarios
 exports.obtenerUsuarios = async (req, res) => {
@@ -72,9 +73,27 @@ exports.loginUsuario = async (req, res) => {
             return res.status(401).json({ message: "Contraseña incorrecta" });
         }
 
+        // Generar token JWT con id y rol
+        const token = jwt.sign(
+            {
+                id: usuario._id,
+                email: usuario.email,
+                rol: usuario.rol
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: "1d" } // 1 día de expiración
+        );
+
         res.json({
             message: "Inicio de sesión exitoso",
-            usuario
+            token, // Aquí se devuelve el token
+            usuario: {
+                id: usuario._id,
+                nombre: usuario.nombre,
+                email: usuario.email,
+                rol: usuario.rol
+                // Puedes devolver más datos si deseas, pero evita la contraseña
+            }
         });
 
     } catch (error) {
@@ -82,6 +101,7 @@ exports.loginUsuario = async (req, res) => {
         res.status(500).json({ message: "Error en el servidor" });
     }
 };
+
 
 // ✅ Paso 1: Obtener pregunta de recuperación
 exports.obtenerPreguntaRecuperacion = async (req, res) => {
