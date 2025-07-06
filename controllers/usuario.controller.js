@@ -1,4 +1,5 @@
 const Usuario = require("../models/usuario.model");
+const Pregunta = require("../models/pregunta.model");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
@@ -42,7 +43,10 @@ exports.crearUsuario = async (req, res) => {
             password: hashedPassword,
             sexo,
             edad,
-            recuperacion,
+            recuperacion: {
+                pregunta: recuperacion.pregunta, // ID de pregunta
+                respuesta: recuperacion.respuesta
+            },
             rol
         });
 
@@ -107,19 +111,22 @@ exports.loginUsuario = async (req, res) => {
 exports.obtenerPreguntaRecuperacion = async (req, res) => {
     try {
         const { email } = req.body;
-        const usuario = await Usuario.findOne({ email });
+        const usuario = await Usuario.findOne({ email }).populate("recuperacion.pregunta");
 
         if (!usuario) {
             return res.status(404).json({ message: "Correo no encontrado" });
         }
 
-        res.json({ pregunta: usuario.recuperacion.pregunta });
+        res.json({ pregunta: usuario.recuperacion.pregunta.pregunta });
 
     } catch (error) {
         console.error("❌ Error al obtener pregunta de recuperación:", error);
         res.status(500).json({ message: "Error en el servidor" });
     }
 };
+
+
+
 
 // ✅ Paso 2: Validar respuesta secreta
 exports.validarRespuestaRecuperacion = async (req, res) => {

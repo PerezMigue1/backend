@@ -2,8 +2,15 @@ const mongoose = require("mongoose");
 
 // Subdocumento para la recuperación
 const PreguntaRecuperacionSchema = new mongoose.Schema({
-    pregunta: { type: String, required: true },
-    respuesta: { type: String, required: true },
+    pregunta: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "PreguntaRecuperacion", // nombre del modelo
+        required: true
+    },
+    respuesta: {
+        type: String,
+        required: true
+    }
 });
 
 // Esquema principal de usuario
