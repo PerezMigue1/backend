@@ -16,7 +16,7 @@ const ProductoSchema = new mongoose.Schema({
     Especificaciones: { type: String },
     Disponibilidad: { type: String, enum: ["En stock", "Agotado"], default: "En stock" },
     Comentarios: { type: String },
-    idArtesano: { type: String, ref: "ContactoArtesano" }
+    idArtesano: { type: String, required: true }
 }, { timestamps: true });
 
 module.exports = mongoose.model("Producto", ProductoSchema, "productos");

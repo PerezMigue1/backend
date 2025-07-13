@@ -14,7 +14,8 @@ exports.obtenerContactos = async (req, res) => {
 // Obtener contacto por ID de Mongo
 exports.obtenerContactoPorId = async (req, res) => {
     try {
-        const contacto = await ContactoArtesano.findById(req.params.id);
+        const contacto = await ContactoArtesano.findOne({ idArtesano: req.params.id });
+
         if (!contacto) {
             return res.status(404).json({ message: "Contacto no encontrado" });
         }
