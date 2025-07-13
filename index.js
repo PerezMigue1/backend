@@ -24,6 +24,7 @@ app.use('/api/categoriaProducto', require('./routes/categoriaProducto.routes'))
 app.use('/api/pedidos', require('./routes/pedido.route'));
 app.use('/api/hospedaje', require('./routes/hospedaje.routes'));
 app.use('/api/lugares', require('./routes/lugarTuristico.route'));
+app.use("/api/artesano", require('./routes/contactoArtesano.routes'));
 
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,

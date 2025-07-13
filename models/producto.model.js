@@ -6,15 +6,17 @@ const ProductoSchema = new mongoose.Schema({
     Imagen: [{ type: String, required: true }],
     Precio: { type: Number, required: true },
     Descripción: { type: String },
-    Forma: { type: String },
-    "Largo x Ancho": { type: String },
+    Dimensiones: { type: String },
+    Colores: { type: String },
     Etiquetas: { type: String },
     idCategoria: { type: String, required: true },
     Origen: { type: String },
     Materiales: { type: String },
+    Técnica: { type: String },
+    Especificaciones: { type: String },
     Disponibilidad: { type: String, enum: ["En stock", "Agotado"], default: "En stock" },
-    "Tiempo-estimado-llegada": { type: Date },
-    Comentarios: { type: String }
+    Comentarios: { type: String },
+    idArtesano: { type: String, ref: "ContactoArtesano" }
 }, { timestamps: true });
 
 module.exports = mongoose.model("Producto", ProductoSchema, "productos");
