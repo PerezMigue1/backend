@@ -30,22 +30,26 @@ exports.obtenerContactoPorId = async (req, res) => {
 exports.crearContacto = async (req, res) => {
     try {
         const datos = req.body;
-        const imagen = req.file;
 
-        if (imagen) {
-            datos.imagenPerfil = imagen.path; // o subirlo a Cloudinary y usar la URL
+        // Convertir redes sociales desde FormData
+        datos.redesSociales = {
+            facebook: datos['redesSociales.facebook'] || '',
+            instagram: datos['redesSociales.instagram'] || '',
+            whatsapp: datos['redesSociales.whatsapp'] || '',
+        };
+
+        // Imagen si existe
+        if (req.file) {
+            datos.imagenPerfil = req.file.path || req.file?.path;
         }
 
-        // Obtener el último idArtesano
+        // Generar idArtesano automático
         const ultimo = await ContactoArtesano.findOne().sort({ createdAt: -1 }).lean();
-
-        let nuevoId = "A0001"; // Valor inicial
-
+        let nuevoId = "A0001";
         if (ultimo && ultimo.idArtesano) {
             const num = parseInt(ultimo.idArtesano.slice(1)) + 1;
             nuevoId = "A" + num.toString().padStart(4, "0");
         }
-
         datos.idArtesano = nuevoId;
 
         const nuevoContacto = new ContactoArtesano(datos);
@@ -56,10 +60,14 @@ exports.crearContacto = async (req, res) => {
             contacto: nuevoContacto
         });
     } catch (error) {
-        console.error("❌ Error al crear contacto:", error);
-        res.status(500).json({ message: "Error interno del servidor" });
+        console.error("❌ Error al crear contacto:", error.message);
+        console.error(error.stack);
+        res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }
+
 };
+
+
 
 
 // Actualizar contacto
