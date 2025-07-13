@@ -30,6 +30,7 @@ exports.obtenerContactoPorId = async (req, res) => {
 exports.crearContacto = async (req, res) => {
     try {
         const datos = req.body;
+        console.log("📸 Archivo recibido:", req.file);
 
         // Convertir redes sociales desde FormData
         datos.redesSociales = {
@@ -61,6 +62,8 @@ exports.crearContacto = async (req, res) => {
         });
     } catch (error) {
         console.error("❌ Error al crear contacto:", error.message);
+        console.error("Datos recibidos:", datos.message); // 👉 agrega esto
+
         console.error(error.stack);
         res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }
