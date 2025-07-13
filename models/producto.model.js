@@ -7,17 +7,14 @@ const ProductoSchema = new mongoose.Schema({
     Precio: { type: Number, required: true },
     Descripción: { type: String },
     Forma: { type: String },
-    Dimensiones: { type: String }, // Reemplaza "Largo x Ancho"
+    "Largo x Ancho": { type: String },
     Etiquetas: { type: String },
     idCategoria: { type: String, required: true },
     Origen: { type: String },
     Materiales: { type: String },
-    Disponibilidad: {
-        type: String,
-        enum: ["En stock", "Agotado"],
-        default: "En stock"
-    },
-    Comentarios: { type: String } // También puedes llamarlo "Observaciones"
+    Disponibilidad: { type: String, enum: ["En stock", "Agotado"], default: "En stock" },
+    "Tiempo-estimado-llegada": { type: Date },
+    Comentarios: { type: String }
 }, { timestamps: true });
 
 module.exports = mongoose.model("Producto", ProductoSchema, "productos");
