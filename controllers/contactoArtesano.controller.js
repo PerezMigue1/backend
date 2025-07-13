@@ -29,8 +29,28 @@ exports.obtenerContactoPorId = async (req, res) => {
 // Crear nuevo contacto
 exports.crearContacto = async (req, res) => {
     try {
-        const nuevoContacto = new ContactoArtesano(req.body);
+        const datos = req.body;
+        const imagen = req.file;
+
+        if (imagen) {
+            datos.imagenPerfil = imagen.path; // o subirlo a Cloudinary y usar la URL
+        }
+
+        // Obtener el último idArtesano
+        const ultimo = await ContactoArtesano.findOne().sort({ createdAt: -1 }).lean();
+
+        let nuevoId = "A0001"; // Valor inicial
+
+        if (ultimo && ultimo.idArtesano) {
+            const num = parseInt(ultimo.idArtesano.slice(1)) + 1;
+            nuevoId = "A" + num.toString().padStart(4, "0");
+        }
+
+        datos.idArtesano = nuevoId;
+
+        const nuevoContacto = new ContactoArtesano(datos);
         await nuevoContacto.save();
+
         res.status(201).json({
             message: "Contacto creado correctamente",
             contacto: nuevoContacto
@@ -40,6 +60,7 @@ exports.crearContacto = async (req, res) => {
         res.status(500).json({ message: "Error interno del servidor" });
     }
 };
+
 
 // Actualizar contacto
 exports.actualizarContacto = async (req, res) => {
@@ -82,3 +103,4 @@ exports.eliminarContacto = async (req, res) => {
         res.status(500).json({ message: "Error en el servidor" });
     }
 };
+

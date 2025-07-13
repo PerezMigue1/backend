@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const contactoController = require("../controllers/contactoArtesano.controller");
+const upload = require("../middlewares/upload.middleware");
+
+router.post("/", upload.single("imagenPerfil"), contactoController.crearContacto);
 
 router.get("/", contactoController.obtenerContactos);
 router.get("/:id", contactoController.obtenerContactoPorId);
