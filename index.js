@@ -26,6 +26,8 @@ app.use('/api/hospedaje', require('./routes/hospedaje.routes'));
 app.use('/api/lugares', require('./routes/lugarTuristico.route'));
 app.use("/api/artesano", require('./routes/contactoArtesano.routes'));
 app.use("/api/contacto", require("./routes/contactoForm.routes"));
+app.use("/api/publicacion", require('./routes/productoRevision.routes'));
+app.use('/api/notificaciones', require('./routes/notificacion.routes'));
 
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
