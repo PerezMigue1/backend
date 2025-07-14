@@ -6,9 +6,9 @@ const cloudinary = require("./cloudinary.config");
 const storage = new CloudinaryStorage({
     cloudinary,
     params: {
-        folder: "artesanos", // Carpeta en tu cuenta de Cloudinary
+        folder: "productos",
         allowed_formats: ["jpg", "png", "jpeg", "webp"],
-        transformation: [{ width: 500, height: 500, crop: "limit" }],
+        transformation: [{ width: 800, height: 800, crop: "limit" }],
     },
 });
 

@@ -115,3 +115,19 @@ exports.eliminarContacto = async (req, res) => {
     }
 };
 
+// Obtener artesano por idUsuario
+exports.obtenerArtesanoPorUsuario = async (req, res) => {
+    try {
+        const { idUsuario } = req.params;
+        const artesano = await ContactoArtesano.findOne({ idUsuario });
+
+        if (!artesano) {
+            return res.status(404).json({ message: "No se encontró artesano para este usuario." });
+        }
+
+        res.json(artesano);
+    } catch (error) {
+        console.error("❌ Error al obtener artesano por idUsuario:", error);
+        res.status(500).json({ message: "Error en el servidor" });
+    }
+};

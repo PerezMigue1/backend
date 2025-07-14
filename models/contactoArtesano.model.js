@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const ContactoArtesanoSchema = new mongoose.Schema({
+    idUsuario: { type: String, required: true },
     idArtesano: { type: String, required: true, unique: true },
     nombre: { type: String, required: true },
     correo: { type: String, required: true },
