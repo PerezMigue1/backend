@@ -5,6 +5,7 @@ const { verificarToken, permitirRoles } = require("../middlewares/auth.middlewar
 
 // CRUD + recuperación de contraseña
 router.post("/", usuarioController.crearUsuario);
+router.get("/", usuarioController.obtenerUsuarios);
 router.post("/login", usuarioController.loginUsuario);
 router.post("/pregunta-secreta", usuarioController.obtenerPreguntaRecuperacion);
 router.post("/verificar-respuesta", usuarioController.validarRespuestaRecuperacion);
