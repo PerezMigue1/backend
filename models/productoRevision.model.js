@@ -1,3 +1,4 @@
+// models/productoRevision.model.js
 const mongoose = require("mongoose");
 
 const ProductoRevisionSchema = new mongoose.Schema({
@@ -16,14 +17,19 @@ const ProductoRevisionSchema = new mongoose.Schema({
     Especificaciones: { type: String },
     Disponibilidad: { type: String, enum: ["En stock", "Agotado"], default: "En stock" },
     Comentarios: { type: String },
-
+    idArtesano: { type: String, required: true }, // Añadir este campo
+    
     // Datos de revisión
     idUsuario: { type: String, required: true },
-    estadoRevision: { type: String, enum: ["pendiente", "aprobado", "rechazado"], default: "pendiente" },
+    estadoRevision: { 
+        type: String, 
+        enum: ["pendiente", "aprobado", "rechazado"], 
+        default: "pendiente" 
+    },
     motivoRechazo: { type: String },
-    revisadoPor: { type: String },
+    revisadoPor: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario' }, // Referencia al administrador
     fechaSolicitud: { type: Date, default: Date.now },
-    fechaRevision: { type: Date, default: null }
+    fechaRevision: { type: Date }
 }, { timestamps: true });
 
 module.exports = mongoose.model("ProductoRevision", ProductoRevisionSchema, "publicaciones");

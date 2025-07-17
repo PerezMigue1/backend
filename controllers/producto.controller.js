@@ -1,27 +1,39 @@
 const Producto = require("../models/producto.model");
 
 // ✅ Obtener todos los productos
+// Obtener todos los productos aprobados
 exports.obtenerProductos = async (req, res) => {
     try {
-        const productos = await Producto.find();
+        const { categoria, artesano, search } = req.query;
+        let query = { estado: "activo" };
+        
+        if (categoria) query.idCategoria = categoria;
+        if (artesano) query.idArtesano = artesano;
+        if (search) query.$text = { $search: search };
+        
+        const productos = await Producto.find(query)
+            .sort({ fechaAprobacion: -1 });
+        
         res.json(productos);
     } catch (error) {
         console.error("❌ Error al obtener productos:", error);
-        res.status(500).json({ message: "Error en el servidor" });
+        res.status(500).json({ message: 'Error en el servidor' });
     }
 };
 
-// ✅ Obtener un producto por idProducto
+// Obtener un producto por ID
 exports.obtenerProductoPorId = async (req, res) => {
     try {
         const producto = await Producto.findOne({ idProducto: req.params.id });
+        
         if (!producto) {
-            return res.status(404).json({ message: "Producto no encontrado" });
+            return res.status(404).json({ message: 'Producto no encontrado' });
         }
+
         res.json(producto);
     } catch (error) {
         console.error("❌ Error al obtener producto:", error);
-        res.status(500).json({ message: "Error en el servidor" });
+        res.status(500).json({ message: 'Error en el servidor' });
     }
 };
 

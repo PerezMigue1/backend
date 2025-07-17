@@ -1,54 +1,56 @@
+// controllers/productoRevision.controller.js
 const ProductoRevision = require("../models/productoRevision.model");
+const Producto = require("../models/producto.model"); // Necesitarás crear este modelo
+const mongoose = require("mongoose");
 
-// Obtener todos los productos pendientes
+// Obtener publicaciones con filtro por estado
 exports.obtenerTodos = async (req, res) => {
     try {
-        const productos = await ProductoRevision.find();
+        const { estado } = req.query;
+        let query = {};
+        
+        if (estado) {
+            query.estadoRevision = estado;
+        }
+        
+        const productos = await ProductoRevision.find(query)
+            .populate('revisadoPor', 'nombre email'); // Populate para obtener datos del revisor
+        
         res.json(productos);
     } catch (error) {
-        console.error("❌ Error al obtener productos pendientes:", error);
+        console.error("❌ Error al obtener publicaciones:", error);
         res.status(500).json({ message: 'Error en el servidor' });
     }
 };
 
-// Obtener producto por ID personalizado
+// Obtener publicación por ID
 exports.obtenerPorId = async (req, res) => {
     try {
-        const producto = await ProductoRevision.findOne({ idProducto: req.params.id });
-
+        const producto = await ProductoRevision.findOne({ idProducto: req.params.id })
+            .populate('revisadoPor', 'nombre email');
+        
         if (!producto) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
+            return res.status(404).json({ message: 'Publicación no encontrada' });
         }
 
         res.json(producto);
     } catch (error) {
-        console.error("❌ Error al obtener producto:", error);
+        console.error("❌ Error al obtener publicación:", error);
         res.status(500).json({ message: 'Error en el servidor' });
     }
 };
 
-// Crear nuevo producto pendiente
+// Crear nueva publicación
 exports.crear = async (req, res) => {
     const datos = req.body;
 
     try {
-        console.log("📥 Datos recibidos:", datos);
-        console.log("📸 Archivos recibidos:", req.files);
-
-        // Validar que venga idUsuario e idArtesano
+        // Validar datos requeridos
         if (!datos.idUsuario || !datos.idArtesano) {
             return res.status(400).json({ message: "Faltan datos de usuario o artesano" });
         }
 
-        // Verifica si vienen imágenes
-        const imagenes = [];
-        if (req.files && Array.isArray(req.files)) {
-            for (const file of req.files) {
-                imagenes.push(file.path);
-            }
-        }
-
-        // Generar idProducto automático y consecutivo
+        // Generar idProducto consecutivo
         const ultimo = await ProductoRevision.findOne().sort({ createdAt: -1 }).lean();
         let nuevoId = "P000001";
         if (ultimo && ultimo.idProducto) {
@@ -56,80 +58,149 @@ exports.crear = async (req, res) => {
             nuevoId = "P" + num.toString().padStart(6, "0");
         }
 
-        // Crear producto con datos completos
-        const nuevoProducto = new ProductoRevision({
+        // Crear nueva publicación
+        const nuevaPublicacion = new ProductoRevision({
             idProducto: nuevoId,
-            Nombre: datos.Nombre,
-            Imagen: imagenes,
-            Precio: datos.Precio,
-            Descripción: datos.Descripción,
-            Dimensiones: datos.Dimensiones,
-            Colores: datos.Colores,
-            Etiquetas: datos.Etiquetas,
-            idCategoria: datos.idCategoria,
-            Origen: datos.Origen,
-            Materiales: datos.Materiales,
-            Técnica: datos.Técnica,
-            Especificaciones: datos.Especificaciones,
-            Comentarios: datos.Comentarios,
-            Disponibilidad: "En stock",
-            idUsuario: datos.idUsuario,
-            idArtesano: datos.idArtesano,
+            ...datos,
             estadoRevision: "pendiente",
             fechaSolicitud: new Date()
         });
 
-        await nuevoProducto.save();
+        await nuevaPublicacion.save();
 
         res.status(201).json({
-            message: "✅ Producto enviado correctamente para revisión",
-            producto: nuevoProducto
+            message: "✅ Publicación enviada correctamente para revisión",
+            publicacion: nuevaPublicacion
         });
 
     } catch (error) {
-        console.error("❌ Error al crear producto:", error.message);
-        res.status(500).json({ message: "Error al crear producto", error: error.message });
+        console.error("❌ Error al crear publicación:", error.message);
+        res.status(500).json({ message: "Error al crear publicación", error: error.message });
     }
 };
 
-// Actualizar producto
-exports.actualizarProducto = async (req, res) => {
+// Aprobar una publicación
+exports.aprobarPublicacion = async (req, res) => {
     try {
-        const productoActualizado = await ProductoRevision.findOneAndUpdate(
-            { idProducto: req.params.id },
-            req.body,
-            { new: true }
-        );
+        const { id } = req.params;
+        const { idAdmin } = req.body; // ID del administrador que aprueba
 
-        if (!productoActualizado) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
+        // Buscar la publicación
+        const publicacion = await ProductoRevision.findOne({ idProducto: id });
+        if (!publicacion) {
+            return res.status(404).json({ message: 'Publicación no encontrada' });
         }
 
+        // Verificar que esté pendiente
+        if (publicacion.estadoRevision !== 'pendiente') {
+            return res.status(400).json({ message: 'La publicación ya fue revisada' });
+        }
+
+        // Actualizar estado
+        publicacion.estadoRevision = 'aprobado';
+        publicacion.revisadoPor = idAdmin;
+        publicacion.fechaRevision = new Date();
+        publicacion.motivoRechazo = null;
+        
+        await publicacion.save();
+
+        // Crear el producto aprobado en la colección de productos
+        const nuevoProducto = new Producto({
+            ...publicacion.toObject(),
+            _id: new mongoose.Types.ObjectId(),
+            idProducto: publicacion.idProducto,
+            estado: 'activo'
+        });
+        
+        await nuevoProducto.save();
+
         res.json({
-            message: "✅ Producto actualizado correctamente",
-            producto: productoActualizado
+            message: "✅ Publicación aprobada correctamente",
+            publicacion,
+            producto: nuevoProducto
         });
     } catch (error) {
-        console.error("❌ Error al actualizar producto:", error);
+        console.error("❌ Error al aprobar publicación:", error);
         res.status(500).json({ message: 'Error en el servidor' });
     }
 };
 
-// Eliminar producto
-exports.eliminarProducto = async (req, res) => {
+// Rechazar una publicación
+exports.rechazarPublicacion = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { idAdmin, motivo } = req.body; // ID del administrador y motivo
+
+        // Buscar la publicación
+        const publicacion = await ProductoRevision.findOne({ idProducto: id });
+        if (!publicacion) {
+            return res.status(404).json({ message: 'Publicación no encontrada' });
+        }
+
+        // Verificar que esté pendiente
+        if (publicacion.estadoRevision !== 'pendiente') {
+            return res.status(400).json({ message: 'La publicación ya fue revisada' });
+        }
+
+        // Actualizar estado
+        publicacion.estadoRevision = 'rechazado';
+        publicacion.revisadoPor = idAdmin;
+        publicacion.fechaRevision = new Date();
+        publicacion.motivoRechazo = motivo;
+        
+        await publicacion.save();
+
+        res.json({
+            message: "❌ Publicación rechazada correctamente",
+            publicacion
+        });
+    } catch (error) {
+        console.error("❌ Error al rechazar publicación:", error);
+        res.status(500).json({ message: 'Error en el servidor' });
+    }
+};
+
+// Actualizar publicación (solo para administradores)
+exports.actualizarPublicacion = async (req, res) => {
+    try {
+        const publicacionActualizada = await ProductoRevision.findOneAndUpdate(
+            { idProducto: req.params.id },
+            req.body,
+            { new: true, runValidators: true }
+        );
+
+        if (!publicacionActualizada) {
+            return res.status(404).json({ message: 'Publicación no encontrada' });
+        }
+
+        res.json({
+            message: "✅ Publicación actualizada correctamente",
+            publicacion: publicacionActualizada
+        });
+    } catch (error) {
+        console.error("❌ Error al actualizar publicación:", error);
+        res.status(500).json({ message: 'Error en el servidor' });
+    }
+};
+
+// Eliminar publicación
+exports.eliminarPublicacion = async (req, res) => {
     try {
         const eliminado = await ProductoRevision.findOneAndDelete({ idProducto: req.params.id });
 
         if (!eliminado) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
+            return res.status(404).json({ message: 'Publicación no encontrada' });
         }
 
+        // También eliminar el producto asociado si existe
+        await Producto.deleteOne({ idProducto: req.params.id });
+
         res.json({
-            message: "🗑️ Producto eliminado correctamente",
-            producto: eliminado
+            message: "🗑️ Publicación eliminada correctamente",
+            publicacion: eliminado
         });
     } catch (error) {
-        console.error("❌ Error al eliminar producto:", error);
+        console.error("❌ Error al eliminar publicación:", error);
         res.status(500).json({ message: 'Error en el servidor' });
     }
 };
