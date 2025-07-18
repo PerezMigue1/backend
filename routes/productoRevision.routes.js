@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/productoRevision.controller');
 const upload = require('../middlewares/uploadCloudinary.middleware');
-const { verificarToken, permitirRoles } = require("../middlewares/auth.middleware");
 
 
 router.post('/', upload.array('Imagen'), controller.crear);
@@ -11,7 +10,7 @@ router.get('/:id', controller.obtenerPorId);
 router.put('/:id', controller.actualizarProducto);
 router.delete('/:id', controller.eliminarProducto);
 
-router.get('/:id/aprobar', verificarToken, permitirRoles(['admin']), controller.aprobarProducto);
-router.delete('/:id/rechazar', verificarToken, permitirRoles(['admin']), controller.rechazarProducto);
+router.patch('/:id/aprobar', controller.aprobarProducto);
+router.patch('/:id/rechazar', controller.rechazarProducto);
 
 module.exports = router;
