@@ -21,6 +21,8 @@ router.delete("/rechazar/:id",
 router.get('/', 
     controller.obtenerTodos
 );
+router.get('/pendientes', verificarToken, controller.obtenerPublicacionesPendientes);
+
 
 router.post('/', upload.array('Imagen'), controller.crear);
 router.get('/:id', controller.obtenerPorId);

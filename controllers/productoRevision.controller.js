@@ -268,3 +268,13 @@ exports.eliminarProducto = async (req, res) => {
         res.status(500).json({ message: 'Error en el servidor' });
     }
 };
+
+exports.obtenerPublicacionesPendientes = async (req, res) => {
+  try {
+    const pendientes = await Publicacion.find({ estadoRevision: 'pendiente' });
+    res.status(200).json(pendientes);
+  } catch (error) {
+    console.error('Error al obtener publicaciones pendientes:', error);
+    res.status(500).json({ mensaje: 'Error interno del servidor' });
+  }
+};
