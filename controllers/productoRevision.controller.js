@@ -134,24 +134,15 @@ exports.rechazarProducto = async (req, res) => {
     }
 };
 
-// Obtener todos los productos en revisión (solo para admin)
+
+// Obtener todos los productos pendientes
 exports.obtenerTodos = async (req, res) => {
     try {
-        const productos = await ProductoRevision.find({
-            estadoRevision: "pendiente"
-        }).sort({ fechaSolicitud: -1 });
-
-        res.status(200).json({
-            cantidad: productos.length,
-            productos: productos,
-            mensaje: "Productos en revisión obtenidos correctamente"
-        });
+        const productos = await ProductoRevision.find();
+        res.json(productos);
     } catch (error) {
-        console.error("Error al obtener productos en revisión:", error);
-        res.status(500).json({ 
-            mensaje: "Error interno al obtener productos",
-            error: error.message 
-        });
+        console.error("❌ Error al obtener productos pendientes:", error);
+        res.status(500).json({ message: 'Error en el servidor' });
     }
 };
 
