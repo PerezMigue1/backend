@@ -14,3 +14,5 @@ router.patch('/:id/aprobar', controller.aprobarProducto);
 router.patch('/:id/rechazar', controller.rechazarProducto);
 
 module.exports = router;
+
+//esto ya valio 
