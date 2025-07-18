@@ -1,6 +1,5 @@
 const ProductoRevision = require("../models/productoRevision.model");
 
-
 // Obtener todos los productos pendientes
 exports.obtenerTodos = async (req, res) => {
     try {
