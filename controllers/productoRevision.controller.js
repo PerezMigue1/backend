@@ -3,33 +3,39 @@ const Producto = require("../models/producto.model");
 const Notificacion = require("../models/notificacion.model");
 
 exports.aprobarProducto = async (req, res) => {
+    console.log("👉 aprobarProducto llamado con ID:", req.params.id, " y usuario:", req.usuario);
     try {
-        // Validar que sea admin
         if (req.usuario.rol !== "admin") {
+            console.log("❌ No autorizado, rol:", req.usuario.rol);
             return res.status(403).json({ mensaje: "No autorizado" });
         }
 
-        console.log("ID recibido:", req.params.id);
         const producto = await ProductoRevision.findById(req.params.id);
-        console.log("Producto encontrado:", producto);
+        console.log("📦 ProductoRevision:", producto);
 
-        if (!producto) return res.status(404).json({ mensaje: "Producto no encontrado" });
+        if (!producto) {
+            console.log("❌ No se encontró el producto en revisión");
+            return res.status(404).json({ mensaje: "Producto no encontrado" });
+        }
 
+        if (!producto.idArtesano) {
+            console.log("❌ Falta idArtesano en producto:", producto);
+            return res.status(400).json({ mensaje: "Producto sin artesano" });
+        }
 
-        // Crear producto aprobado (mismo contenido que estaba en revisión)
         const nuevoProducto = new Producto({
             idProducto: producto.idProducto,
             Nombre: producto.Nombre,
             Imagen: producto.Imagen,
             Precio: producto.Precio,
-            Descripcion: producto.Descripcion,
+            Descripción: producto.Descripción,
             Dimensiones: producto.Dimensiones,
             Colores: producto.Colores,
             Etiquetas: producto.Etiquetas,
             idCategoria: producto.idCategoria,
             Origen: producto.Origen,
             Materiales: producto.Materiales,
-            Tecnica: producto.Técnica,
+            Técnica: producto.Técnica,
             Especificaciones: producto.Especificaciones,
             Disponibilidad: producto.Disponibilidad,
             Comentarios: producto.Comentarios,
@@ -37,23 +43,29 @@ exports.aprobarProducto = async (req, res) => {
         });
 
         await nuevoProducto.save();
+        console.log("✅ Producto guardado en colección productos:", nuevoProducto._id);
 
-        // Enviar notificación al artesano
-        await Notificacion.create({
-            idArtesano: producto.idArtesano,
-            mensaje: `Tu producto "${producto.Nombre}" ha sido aprobado y ahora está visible.`,
-            estado: "no leído"
+        const noti = await Notificacion.create({
+            idUsuario: producto.idArtesano,
+            tipo: "publicacion",
+            producto: producto.Nombre,
+            mensaje: `Tu producto "${producto.Nombre}" ha sido aprobado.`,
+            estado: "pendiente",
+            fecha: new Date(),
         });
+        console.log("🔔 Notificación creada:", noti._id);
 
-        // Eliminar producto de revisión
         await ProductoRevision.findByIdAndDelete(req.params.id);
+        console.log("🗑 ProductoRevision eliminado");
 
-        res.status(200).json({ mensaje: "Producto aprobado correctamente" });
+        res.json({ mensaje: "Producto aprobado con éxito" });
+
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ mensaje: "Error al aprobar el producto" });
+        console.error("🔥 ERROR en aprobarProducto:", error);
+        res.status(500).json({ mensaje: "Error interno al aprobar" });
     }
 };
+
 
 exports.rechazarProducto = async (req, res) => {
     try {
