@@ -133,3 +133,99 @@ exports.eliminarProducto = async (req, res) => {
         res.status(500).json({ message: 'Error en el servidor' });
     }
 };
+
+
+// Aprobar producto pendiente
+exports.aprobarProducto = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { revisadoPor, comentarios } = req.body;
+
+        // Validar que venga el ID del revisor
+        if (!revisadoPor) {
+            return res.status(400).json({ message: "Se requiere el ID del administrador que revisa" });
+        }
+
+        const producto = await ProductoRevision.findOne({ idProducto: id });
+
+        if (!producto) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+
+        // Verificar que el producto esté pendiente
+        if (producto.estadoRevision !== "pendiente") {
+            return res.status(400).json({ 
+                message: `El producto ya fue ${producto.estadoRevision}`,
+                estadoActual: producto.estadoRevision
+            });
+        }
+
+        // Actualizar el producto
+        producto.estadoRevision = "aprobado";
+        producto.revisadoPor = revisadoPor;
+        producto.fechaRevision = new Date();
+        if (comentarios) producto.Comentarios = comentarios;
+
+        await producto.save();
+
+        res.json({
+            message: "✅ Producto aprobado correctamente",
+            producto: producto
+        });
+
+    } catch (error) {
+        console.error("❌ Error al aprobar producto:", error);
+        res.status(500).json({ 
+            message: 'Error en el servidor',
+            error: error.message 
+        });
+    }
+};
+
+// Rechazar producto pendiente
+exports.rechazarProducto = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { revisadoPor, motivoRechazo } = req.body;
+
+        // Validaciones
+        if (!revisadoPor || !motivoRechazo) {
+            return res.status(400).json({ 
+                message: "Se requiere el ID del administrador y el motivo de rechazo" 
+            });
+        }
+
+        const producto = await ProductoRevision.findOne({ idProducto: id });
+
+        if (!producto) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+
+        if (producto.estadoRevision !== "pendiente") {
+            return res.status(400).json({ 
+                message: `El producto ya fue ${producto.estadoRevision}`,
+                estadoActual: producto.estadoRevision
+            });
+        }
+
+        // Actualizar el producto
+        producto.estadoRevision = "rechazado";
+        producto.revisadoPor = revisadoPor;
+        producto.motivoRechazo = motivoRechazo;
+        producto.fechaRevision = new Date();
+
+        await producto.save();
+
+        res.json({
+            message: "❌ Producto rechazado correctamente",
+            producto: producto
+        });
+
+    } catch (error) {
+        console.error("❌ Error al rechazar producto:", error);
+        res.status(500).json({ 
+            message: 'Error en el servidor',
+            error: error.message 
+        });
+    }
+};
