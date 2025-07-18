@@ -135,15 +135,20 @@ exports.eliminarProducto = async (req, res) => {
 };
 
 
+// En tu controlador (productoRevision.controller.js)
+
 // Aprobar producto pendiente
 exports.aprobarProducto = async (req, res) => {
     try {
         const { id } = req.params;
-        const { revisadoPor, comentarios } = req.body;
+        const { revisadoPor } = req.body;
 
-        // Validar que venga el ID del revisor
+        // Validación más robusta
         if (!revisadoPor) {
-            return res.status(400).json({ message: "Se requiere el ID del administrador que revisa" });
+            return res.status(400).json({ 
+                message: "Se requiere el ID del administrador que revisa",
+                error: "Falta el campo 'revisadoPor' en el cuerpo de la solicitud"
+            });
         }
 
         const producto = await ProductoRevision.findOne({ idProducto: id });
@@ -152,25 +157,20 @@ exports.aprobarProducto = async (req, res) => {
             return res.status(404).json({ message: 'Producto no encontrado' });
         }
 
-        // Verificar que el producto esté pendiente
-        if (producto.estadoRevision !== "pendiente") {
-            return res.status(400).json({ 
-                message: `El producto ya fue ${producto.estadoRevision}`,
-                estadoActual: producto.estadoRevision
-            });
-        }
-
         // Actualizar el producto
-        producto.estadoRevision = "aprobado";
-        producto.revisadoPor = revisadoPor;
-        producto.fechaRevision = new Date();
-        if (comentarios) producto.Comentarios = comentarios;
-
-        await producto.save();
+        const actualizado = await ProductoRevision.findOneAndUpdate(
+            { idProducto: id },
+            {
+                estadoRevision: "aprobado",
+                revisadoPor: revisadoPor,
+                fechaRevision: new Date()
+            },
+            { new: true }
+        );
 
         res.json({
             message: "✅ Producto aprobado correctamente",
-            producto: producto
+            producto: actualizado
         });
 
     } catch (error) {
@@ -188,10 +188,11 @@ exports.rechazarProducto = async (req, res) => {
         const { id } = req.params;
         const { revisadoPor, motivoRechazo } = req.body;
 
-        // Validaciones
+        // Validaciones mejoradas
         if (!revisadoPor || !motivoRechazo) {
             return res.status(400).json({ 
-                message: "Se requiere el ID del administrador y el motivo de rechazo" 
+                message: "Se requiere el ID del revisor y el motivo de rechazo",
+                error: revisadoPor ? "Falta el campo 'motivoRechazo'" : "Falta el campo 'revisadoPor'"
             });
         }
 
@@ -201,24 +202,21 @@ exports.rechazarProducto = async (req, res) => {
             return res.status(404).json({ message: 'Producto no encontrado' });
         }
 
-        if (producto.estadoRevision !== "pendiente") {
-            return res.status(400).json({ 
-                message: `El producto ya fue ${producto.estadoRevision}`,
-                estadoActual: producto.estadoRevision
-            });
-        }
-
         // Actualizar el producto
-        producto.estadoRevision = "rechazado";
-        producto.revisadoPor = revisadoPor;
-        producto.motivoRechazo = motivoRechazo;
-        producto.fechaRevision = new Date();
-
-        await producto.save();
+        const actualizado = await ProductoRevision.findOneAndUpdate(
+            { idProducto: id },
+            {
+                estadoRevision: "rechazado",
+                revisadoPor: revisadoPor,
+                motivoRechazo: motivoRechazo,
+                fechaRevision: new Date()
+            },
+            { new: true }
+        );
 
         res.json({
             message: "❌ Producto rechazado correctamente",
-            producto: producto
+            producto: actualizado
         });
 
     } catch (error) {
