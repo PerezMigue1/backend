@@ -2,108 +2,156 @@ const ProductoRevision = require("../models/productoRevision.model");
 const Producto = require("../models/producto.model");
 const Notificacion = require("../models/notificacion.model");
 
+const mongoose = require("mongoose");
+
 exports.aprobarProducto = async (req, res) => {
-    console.log("👉 aprobarProducto llamado con ID:", req.params.id, " y usuario:", req.usuario);
     try {
-        if (req.usuario.rol !== "admin") {
-            console.log("❌ No autorizado, rol:", req.usuario.rol);
-            return res.status(403).json({ mensaje: "No autorizado" });
+        // Validación de usuario admin
+        if (!req.usuario || req.usuario.rol !== "admin") {
+            return res.status(403).json({ mensaje: "No autorizado: Se requiere rol de administrador" });
         }
 
-        const producto = await ProductoRevision.findById(req.params.id);
-        console.log("📦 ProductoRevision:", producto);
-
-        if (!producto) {
-            console.log("❌ No se encontró el producto en revisión");
-            return res.status(404).json({ mensaje: "Producto no encontrado" });
+        // Validación de ID
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ mensaje: "ID de producto inválido" });
         }
 
-        if (!producto.idArtesano) {
-            console.log("❌ Falta idArtesano en producto:", producto);
-            return res.status(400).json({ mensaje: "Producto sin artesano" });
+        // Buscar el producto en revisión
+        const productoRevision = await ProductoRevision.findById(req.params.id);
+        if (!productoRevision) {
+            return res.status(404).json({ mensaje: "Producto en revisión no encontrado" });
         }
 
-        const nuevoProducto = new Producto({
-            idProducto: producto.idProducto,
-            Nombre: producto.Nombre,
-            Imagen: producto.Imagen,
-            Precio: producto.Precio,
-            Descripción: producto.Descripción,
-            Dimensiones: producto.Dimensiones,
-            Colores: producto.Colores,
-            Etiquetas: producto.Etiquetas,
-            idCategoria: producto.idCategoria,
-            Origen: producto.Origen,
-            Materiales: producto.Materiales,
-            Técnica: producto.Técnica,
-            Especificaciones: producto.Especificaciones,
-            Disponibilidad: producto.Disponibilidad,
-            Comentarios: producto.Comentarios,
-            idArtesano: producto.idArtesano,
+        // Validar campos requeridos
+        if (!productoRevision.idArtesano) {
+            return res.status(400).json({ mensaje: "El producto no tiene asociado un artesano" });
+        }
+
+        // Crear el objeto para el producto aprobado
+        const productoAprobado = new Producto({
+            idProducto: productoRevision.idProducto,
+            Nombre: productoRevision.Nombre,
+            Imagen: productoRevision.Imagen,
+            Precio: productoRevision.Precio,
+            Descripción: productoRevision.Descripción,
+            Dimensiones: productoRevision.Dimensiones,
+            Colores: productoRevision.Colores,
+            Etiquetas: productoRevision.Etiquetas,
+            idCategoria: productoRevision.idCategoria,
+            Origen: productoRevision.Origen,
+            Materiales: productoRevision.Materiales,
+            Técnica: productoRevision.Técnica,
+            Especificaciones: productoRevision.Especificaciones,
+            Disponibilidad: productoRevision.Disponibilidad,
+            Comentarios: productoRevision.Comentarios,
+            idArtesano: productoRevision.idArtesano,
+            estado: "activo",
+            fechaAprobacion: new Date()
         });
 
-        await nuevoProducto.save();
-        console.log("✅ Producto guardado en colección productos:", nuevoProducto._id);
+        // Guardar el producto aprobado
+        await productoAprobado.save();
 
-        const noti = await Notificacion.create({
-            idUsuario: producto.idArtesano,
+        // Actualizar el estado en la revisión
+        productoRevision.estadoRevision = "aprobado";
+        productoRevision.revisadoPor = req.usuario.id;
+        productoRevision.fechaRevision = new Date();
+        await productoRevision.save();
+
+        // Crear notificación
+        await Notificacion.create({
+            idUsuario: productoRevision.idUsuario,
             tipo: "publicacion",
-            producto: producto.Nombre,
-            mensaje: `Tu producto "${producto.Nombre}" ha sido aprobado.`,
-            estado: "pendiente",
-            fecha: new Date(),
+            producto: productoRevision.Nombre,
+            mensaje: `Tu producto "${productoRevision.Nombre}" ha sido aprobado.`,
+            estado: "no-leido",
+            fecha: new Date()
         });
-        console.log("🔔 Notificación creada:", noti._id);
 
-        await ProductoRevision.findByIdAndDelete(req.params.id);
-        console.log("🗑 ProductoRevision eliminado");
-
-        res.json({ mensaje: "Producto aprobado con éxito" });
+        res.status(200).json({ 
+            mensaje: "Producto aprobado exitosamente",
+            producto: productoAprobado
+        });
 
     } catch (error) {
-        console.error("🔥 ERROR en aprobarProducto:", error);
-        res.status(500).json({ mensaje: "Error interno al aprobar" });
+        console.error("Error en aprobarProducto:", error);
+        res.status(500).json({ 
+            mensaje: "Error interno al aprobar el producto",
+            error: error.message 
+        });
     }
 };
-
 
 exports.rechazarProducto = async (req, res) => {
     try {
-        if (req.usuario.rol !== "admin") {
-            return res.status(403).json({ mensaje: "No autorizado" });
+        // Validación de usuario admin
+        if (!req.usuario || req.usuario.rol !== "admin") {
+            return res.status(403).json({ mensaje: "No autorizado: Se requiere rol de administrador" });
         }
 
-        console.log("ID recibido:", req.params.id);
-        const producto = await ProductoRevision.findById(req.params.id);
-        console.log("Producto encontrado:", producto);
+        // Validación de ID
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ mensaje: "ID de producto inválido" });
+        }
 
-        if (!producto) return res.status(404).json({ mensaje: "Producto no encontrado" });
+        // Buscar y actualizar el producto en revisión
+        const productoRechazado = await ProductoRevision.findByIdAndUpdate(
+            req.params.id,
+            {
+                estadoRevision: "rechazado",
+                revisadoPor: req.usuario.id,
+                fechaRevision: new Date(),
+                motivoRechazo: req.body.motivo || "No cumple con los requisitos"
+            },
+            { new: true }
+        );
 
+        if (!productoRechazado) {
+            return res.status(404).json({ mensaje: "Producto en revisión no encontrado" });
+        }
 
+        // Crear notificación
         await Notificacion.create({
-            idArtesano: producto.idArtesano,
-            mensaje: `Tu producto "${producto.Nombre}" ha sido rechazado por el administrador.`,
-            estado: "no leído"
+            idUsuario: productoRechazado.idUsuario,
+            tipo: "publicacion",
+            producto: productoRechazado.Nombre,
+            mensaje: `Tu producto "${productoRechazado.Nombre}" ha sido rechazado. Motivo: ${productoRechazado.motivoRechazo}`,
+            estado: "no-leido",
+            fecha: new Date()
         });
 
-        await ProductoRevision.findByIdAndDelete(req.params.id);
+        res.status(200).json({ 
+            mensaje: "Producto rechazado exitosamente",
+            producto: productoRechazado
+        });
 
-        res.status(200).json({ mensaje: "Producto rechazado y eliminado de la revisión" });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ mensaje: "Error al rechazar el producto" });
+        console.error("Error en rechazarProducto:", error);
+        res.status(500).json({ 
+            mensaje: "Error interno al rechazar el producto",
+            error: error.message 
+        });
     }
 };
 
-
-// Obtener todos los productos pendientes
+// Obtener todos los productos en revisión (solo para admin)
 exports.obtenerTodos = async (req, res) => {
     try {
-        const productos = await ProductoRevision.find();
-        res.json(productos);
+        const productos = await ProductoRevision.find({
+            estadoRevision: "pendiente"
+        }).sort({ fechaSolicitud: -1 });
+
+        res.status(200).json({
+            cantidad: productos.length,
+            productos: productos,
+            mensaje: "Productos en revisión obtenidos correctamente"
+        });
     } catch (error) {
-        console.error("❌ Error al obtener productos pendientes:", error);
-        res.status(500).json({ message: 'Error en el servidor' });
+        console.error("Error al obtener productos en revisión:", error);
+        res.status(500).json({ 
+            mensaje: "Error interno al obtener productos",
+            error: error.message 
+        });
     }
 };
 
