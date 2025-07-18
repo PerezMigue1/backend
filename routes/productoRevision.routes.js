@@ -11,7 +11,7 @@ router.get('/:id', controller.obtenerPorId);
 router.put('/:id', controller.actualizarProducto);
 router.delete('/:id', controller.eliminarProducto);
 
-router.patch('/:id/aprobar', verificarToken, permitirRoles(['admin']), controller.aprobarProducto);
-router.patch('/:id/rechazar', verificarToken, permitirRoles(['admin']), controller.rechazarProducto);
+router.get('/:id/aprobar', verificarToken, permitirRoles(['admin']), controller.aprobarProducto);
+router.delete('/:id/rechazar', verificarToken, permitirRoles(['admin']), controller.rechazarProducto);
 
 module.exports = router;
