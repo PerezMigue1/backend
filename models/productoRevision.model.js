@@ -19,6 +19,7 @@ const ProductoRevisionSchema = new mongoose.Schema({
 
     // Datos de revisión
     idUsuario: { type: String, required: true },
+    idArtesano: { type: String, required: true },
     estadoRevision: { type: String, enum: ["pendiente", "aprobado", "rechazado"], default: "pendiente" },
     motivoRechazo: { type: String },
     revisadoPor: { type: String },

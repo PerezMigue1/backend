@@ -17,7 +17,7 @@ router.delete("/rechazar/:id",
     controller.rechazarProducto
 );
 
-// Obtener productos en revisión (solo admin)
+// Obtener productos en revisión
 router.get('/', 
     controller.obtenerTodos
 );
