@@ -1,4 +1,84 @@
 const ProductoRevision = require("../models/productoRevision.model");
+const Producto = require("../models/producto.model");
+const Notificacion = require("../models/notificacion.model");
+
+exports.aprobarProducto = async (req, res) => {
+    try {
+        // Validar que sea admin
+        if (req.usuario.rol !== "admin") {
+            return res.status(403).json({ mensaje: "No autorizado" });
+        }
+
+        const productoRevision = await ProductoRevision.findById(req.params.id);
+        if (!productoRevision) {
+            return res.status(404).json({ mensaje: "Producto no encontrado en revisión" });
+        }
+
+        // Crear producto aprobado (mismo contenido que estaba en revisión)
+        const nuevoProducto = new Producto({
+            idProducto: productoRevision.idProducto,
+            Nombre: productoRevision.Nombre,
+            Imagen: productoRevision.Imagen,
+            Precio: productoRevision.Precio,
+            Descripcion: productoRevision.Descripcion,
+            Dimensiones: productoRevision.Dimensiones,
+            Colores: productoRevision.Colores,
+            Etiquetas: productoRevision.Etiquetas,
+            idCategoria: productoRevision.idCategoria,
+            Origen: productoRevision.Origen,
+            Materiales: productoRevision.Materiales,
+            Tecnica: productoRevision.Tecnica,
+            Especificaciones: productoRevision.Especificaciones,
+            Disponibilidad: productoRevision.Disponibilidad,
+            Comentarios: productoRevision.Comentarios,
+            idArtesano: productoRevision.idArtesano,
+        });
+
+        await nuevoProducto.save();
+
+        // Enviar notificación al artesano
+        await Notificacion.create({
+            idArtesano: productoRevision.idArtesano,
+            mensaje: `Tu producto "${productoRevision.Nombre}" ha sido aprobado y ahora está visible.`,
+            estado: "no leído"
+        });
+
+        // Eliminar producto de revisión
+        await ProductoRevision.findByIdAndDelete(req.params.id);
+
+        res.status(200).json({ mensaje: "Producto aprobado correctamente" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: "Error al aprobar el producto" });
+    }
+};
+
+exports.rechazarProducto = async (req, res) => {
+    try {
+        if (req.usuario.rol !== "admin") {
+            return res.status(403).json({ mensaje: "No autorizado" });
+        }
+
+        const producto = await ProductoRevision.findById(req.params.id);
+        if (!producto) {
+            return res.status(404).json({ mensaje: "Producto no encontrado" });
+        }
+
+        await Notificacion.create({
+            idArtesano: producto.idArtesano,
+            mensaje: `Tu producto "${producto.Nombre}" ha sido rechazado por el administrador.`,
+            estado: "no leído"
+        });
+
+        await ProductoRevision.findByIdAndDelete(req.params.id);
+
+        res.status(200).json({ mensaje: "Producto rechazado y eliminado de la revisión" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: "Error al rechazar el producto" });
+    }
+};
+
 
 // Obtener todos los productos pendientes
 exports.obtenerTodos = async (req, res) => {

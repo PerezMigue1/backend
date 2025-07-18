@@ -32,7 +32,17 @@ const permitirRoles = (...rolesPermitidos) => {
     };
 };
 
+const verificarRol = (rolPermitido) => {
+    return (req, res, next) => {
+        if (req.usuario.rol !== rolPermitido) {
+            return res.status(403).json({ mensaje: "No autorizado" });
+        }
+        next();
+    };
+};
+
 module.exports = {
     verificarToken,
-    permitirRoles
+    permitirRoles,
+    verificarRol
 };
