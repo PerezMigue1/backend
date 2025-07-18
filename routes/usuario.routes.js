@@ -13,6 +13,9 @@ router.post("/cambiar-password", usuarioController.cambiarPassword);
 router.put("/:id", usuarioController.actualizarUsuario);
 router.delete("/:id", usuarioController.eliminarUsuario);
 
+// Detalles completos del usuario (para panel de administración)
+router.get("/:id/detalles", verificarToken, permitirRoles(['admin']), usuarioController.obtenerDetallesUsuario);
+
 // Obtener perfil de usuario por ID
 router.get("/:id/perfil", usuarioController.obtenerPerfilUsuario);
 

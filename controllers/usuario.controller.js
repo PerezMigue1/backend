@@ -302,3 +302,33 @@ exports.cambiarPasswordDesdePerfil = async (req, res) => {
         res.status(500).json({ message: "Error en el servidor" });
     }
 };
+
+// Agrega esta función a tu controlador
+exports.obtenerDetallesUsuario = async (req, res) => {
+    try {
+        const usuario = await Usuario.findById(req.params.id)
+            .select('-password -preguntaSecreta -respuestaSecreta')
+            .populate('productos', 'nombre precio estado')
+            .populate('pedidos', 'estado total fecha');
+
+        if (!usuario) {
+            return res.status(404).json({ ok: false, mensaje: 'Usuario no encontrado' });
+        }
+
+        // Estadísticas adicionales
+        const productosCount = await Producto.countDocuments({ creador: req.params.id });
+        const pedidosCount = await Pedido.countDocuments({ usuario: req.params.id });
+
+        res.json({
+            ok: true,
+            usuario: {
+                ...usuario._doc,
+                productosCount,
+                pedidosCount
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ ok: false, mensaje: 'Error al obtener detalles del usuario' });
+    }
+};
