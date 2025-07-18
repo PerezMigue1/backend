@@ -19,10 +19,8 @@ router.delete("/rechazar/:id",
 
 // Obtener productos en revisión
 router.get('/', 
-    controller.obtenerTodos
+    controller.obtenerTodo
 );
-router.get('/pendientes', verificarToken, controller.obtenerPublicacionesPendientes);
-
 
 router.post('/', upload.array('Imagen'), controller.crear);
 router.get('/:id', controller.obtenerPorId);

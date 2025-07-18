@@ -134,15 +134,13 @@ exports.rechazarProducto = async (req, res) => {
     }
 };
 
-
 // Obtener todos los productos pendientes
-exports.obtenerTodos = async (req, res) => {
+exports.obtenerTodo = async (req, res) => {
     try {
-        const productos = await ProductoRevision.find();
-        res.json(productos);
+        const publicacionesPendientes = await Publicacion.find({ estadoRevision: "pendiente" });
+        res.status(200).json(publicacionesPendientes);
     } catch (error) {
-        console.error("❌ Error al obtener productos pendientes:", error);
-        res.status(500).json({ message: 'Error en el servidor' });
+        res.status(500).json({ mensaje: "Error al obtener las publicaciones" });
     }
 };
 
@@ -267,14 +265,4 @@ exports.eliminarProducto = async (req, res) => {
         console.error("❌ Error al eliminar producto:", error);
         res.status(500).json({ message: 'Error en el servidor' });
     }
-};
-
-exports.obtenerPublicacionesPendientes = async (req, res) => {
-  try {
-    const pendientes = await Publicacion.find({ estadoRevision: 'pendiente' });
-    res.status(200).json(pendientes);
-  } catch (error) {
-    console.error('Error al obtener publicaciones pendientes:', error);
-    res.status(500).json({ mensaje: 'Error interno del servidor' });
-  }
 };
