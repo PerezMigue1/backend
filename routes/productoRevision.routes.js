@@ -13,6 +13,9 @@ router.delete('/:id', controller.eliminarProducto);
 router.put('/:id/aprobar', controller.aprobarProducto);
 router.put('/:id/rechazar', controller.rechazarProducto);
 
+router.get('/estado/:estado', controller.obtenerPorEstado);
+router.get('/estadisticas/totales', controller.obtenerEstadisticas);
+
 module.exports = router;
 
 //esto ya valio 

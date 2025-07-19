@@ -1,4 +1,6 @@
 const ProductoRevision = require("../models/productoRevision.model");
+const Notificacion = require("../models/notificacion.model");
+const Producto = require("../models/producto.model");
 
 // Obtener todos los productos pendientes
 exports.obtenerTodos = async (req, res) => {
@@ -134,14 +136,11 @@ exports.eliminarProducto = async (req, res) => {
     }
 };
 
-
-// En tu controlador (productoRevision.controller.js)
-
 // Aprobar producto pendiente
 exports.aprobarProducto = async (req, res) => {
     try {
         const { id } = req.params;
-        const { revisadoPor } = req.body;
+        const { revisadoPor, comentarios } = req.body;
 
         console.log("🔍 Aprobando producto con ID:", id);
         console.log("📝 Datos recibidos:", req.body);
@@ -169,22 +168,56 @@ exports.aprobarProducto = async (req, res) => {
             });
         }
 
-        // Actualizar el producto
+        // Actualizar el producto en revisión
         const actualizado = await ProductoRevision.findOneAndUpdate(
             { idProducto: id },
             {
                 estadoRevision: "aprobado",
                 revisadoPor: revisor,
-                fechaRevision: new Date()
+                fechaRevision: new Date(),
+                Comentarios: comentarios || ''
             },
             { new: true }
         );
 
-        console.log("✅ Producto aprobado exitosamente");
+        // Crear notificación para el artesano
+        const notificacion = new Notificacion({
+            idUsuario: producto.idArtesano,
+            tipo: 'publicacion',
+            producto: producto.Nombre,
+            estado: 'aprobado',
+            mensaje: `Tu producto "${producto.Nombre}" ha sido aprobado y ya está disponible en la tienda.`,
+            fecha: new Date()
+        });
+        await notificacion.save();
+
+        // Mover el producto aprobado a la colección de productos
+        const nuevoProducto = new Producto({
+            idProducto: producto.idProducto,
+            Nombre: producto.Nombre,
+            Imagen: producto.Imagen,
+            Precio: producto.Precio,
+            Descripción: producto.Descripción,
+            Dimensiones: producto.Dimensiones,
+            Colores: producto.Colores,
+            Etiquetas: producto.Etiquetas,
+            idCategoria: producto.idCategoria,
+            Origen: producto.Origen,
+            Materiales: producto.Materiales,
+            Técnica: producto.Técnica,
+            Especificaciones: producto.Especificaciones,
+            Disponibilidad: producto.Disponibilidad,
+            Comentarios: comentarios || '',
+            idArtesano: producto.idArtesano
+        });
+        await nuevoProducto.save();
+
+        console.log("✅ Producto aprobado exitosamente y movido a productos");
 
         res.json({
             message: "✅ Producto aprobado correctamente",
-            producto: actualizado
+            producto: actualizado,
+            notificacion: notificacion
         });
 
     } catch (error) {
@@ -200,7 +233,7 @@ exports.aprobarProducto = async (req, res) => {
 exports.rechazarProducto = async (req, res) => {
     try {
         const { id } = req.params;
-        const { revisadoPor, motivoRechazo } = req.body;
+        const { revisadoPor, motivoRechazo, comentarios } = req.body;
 
         console.log("🔍 Rechazando producto con ID:", id);
         console.log("📝 Datos recibidos:", req.body);
@@ -229,27 +262,102 @@ exports.rechazarProducto = async (req, res) => {
             });
         }
 
-        // Actualizar el producto
+        // Actualizar el producto en revisión
         const actualizado = await ProductoRevision.findOneAndUpdate(
             { idProducto: id },
             {
                 estadoRevision: "rechazado",
                 revisadoPor: revisor,
                 motivoRechazo: motivo,
-                fechaRevision: new Date()
+                fechaRevision: new Date(),
+                Comentarios: comentarios || ''
             },
             { new: true }
         );
+
+        // Crear notificación para el artesano
+        const notificacion = new Notificacion({
+            idUsuario: producto.idArtesano,
+            tipo: 'publicacion',
+            producto: producto.Nombre,
+            estado: 'rechazado',
+            mensaje: `Tu producto "${producto.Nombre}" ha sido rechazado. Motivo: ${motivo}`,
+            Motivo: motivo,
+            fecha: new Date()
+        });
+        await notificacion.save();
 
         console.log("✅ Producto rechazado exitosamente");
 
         res.json({
             message: "❌ Producto rechazado correctamente",
-            producto: actualizado
+            producto: actualizado,
+            notificacion: notificacion
         });
 
     } catch (error) {
         console.error("❌ Error al rechazar producto:", error);
+        res.status(500).json({ 
+            message: 'Error en el servidor',
+            error: error.message 
+        });
+    }
+};
+
+// Obtener productos por estado de revisión
+exports.obtenerPorEstado = async (req, res) => {
+    try {
+        const { estado } = req.params;
+        
+        // Validar que el estado sea válido
+        const estadosValidos = ['pendiente', 'aprobado', 'rechazado'];
+        if (!estadosValidos.includes(estado)) {
+            return res.status(400).json({ 
+                message: 'Estado no válido',
+                error: `Estados válidos: ${estadosValidos.join(', ')}`
+            });
+        }
+
+        const productos = await ProductoRevision.find({ estadoRevision: estado }).sort({ fechaSolicitud: -1 });
+        
+        res.json({
+            message: `Productos ${estado}s obtenidos correctamente`,
+            productos: productos,
+            total: productos.length
+        });
+
+    } catch (error) {
+        console.error("❌ Error al obtener productos por estado:", error);
+        res.status(500).json({ 
+            message: 'Error en el servidor',
+            error: error.message 
+        });
+    }
+};
+
+// Obtener estadísticas de productos por estado
+exports.obtenerEstadisticas = async (req, res) => {
+    try {
+        const [pendientes, aprobados, rechazados] = await Promise.all([
+            ProductoRevision.countDocuments({ estadoRevision: 'pendiente' }),
+            ProductoRevision.countDocuments({ estadoRevision: 'aprobado' }),
+            ProductoRevision.countDocuments({ estadoRevision: 'rechazado' })
+        ]);
+
+        const total = pendientes + aprobados + rechazados;
+
+        res.json({
+            message: "Estadísticas obtenidas correctamente",
+            estadisticas: {
+                total,
+                pendientes,
+                aprobados,
+                rechazados
+            }
+        });
+
+    } catch (error) {
+        console.error("❌ Error al obtener estadísticas:", error);
         res.status(500).json({ 
             message: 'Error en el servidor',
             error: error.message 
