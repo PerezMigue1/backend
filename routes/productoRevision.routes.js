@@ -10,8 +10,8 @@ router.get('/:id', controller.obtenerPorId);
 router.put('/:id', controller.actualizarProducto);
 router.delete('/:id', controller.eliminarProducto);
 
-router.patch('/:id/aprobar', controller.aprobarProducto);
-router.patch('/:id/rechazar', controller.rechazarProducto);
+router.put('/:id/aprobar', controller.aprobarProducto);
+router.delete('/:id/rechazar', controller.rechazarProducto);
 
 module.exports = router;
 
