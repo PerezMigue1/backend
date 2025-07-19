@@ -11,7 +11,7 @@ router.put('/:id', controller.actualizarProducto);
 router.delete('/:id', controller.eliminarProducto);
 
 router.put('/:id/aprobar', controller.aprobarProducto);
-router.delete('/:id/rechazar', controller.rechazarProducto);
+router.put('/:id/rechazar', controller.rechazarProducto);
 
 module.exports = router;
 

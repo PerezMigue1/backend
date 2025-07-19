@@ -143,18 +143,30 @@ exports.aprobarProducto = async (req, res) => {
         const { id } = req.params;
         const { revisadoPor } = req.body;
 
-        // Validación más robusta
-        if (!revisadoPor) {
-            return res.status(400).json({ 
-                message: "Se requiere el ID del administrador que revisa",
-                error: "Falta el campo 'revisadoPor' en el cuerpo de la solicitud"
-            });
-        }
+        console.log("🔍 Aprobando producto con ID:", id);
+        console.log("📝 Datos recibidos:", req.body);
+
+        // Validación más flexible - si no viene revisadoPor, usar un valor por defecto
+        const revisor = revisadoPor || 'admin';
 
         const producto = await ProductoRevision.findOne({ idProducto: id });
 
         if (!producto) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
+            console.log("❌ Producto no encontrado con ID:", id);
+            return res.status(404).json({ 
+                message: 'Producto no encontrado',
+                error: `No se encontró producto con ID: ${id}`
+            });
+        }
+
+        console.log("✅ Producto encontrado:", producto.idProducto, "Estado:", producto.estadoRevision);
+
+        // Verificar que el producto esté pendiente
+        if (producto.estadoRevision !== 'pendiente') {
+            return res.status(400).json({ 
+                message: 'El producto ya no está pendiente de revisión',
+                error: `Estado actual: ${producto.estadoRevision}`
+            });
         }
 
         // Actualizar el producto
@@ -162,11 +174,13 @@ exports.aprobarProducto = async (req, res) => {
             { idProducto: id },
             {
                 estadoRevision: "aprobado",
-                revisadoPor: revisadoPor,
+                revisadoPor: revisor,
                 fechaRevision: new Date()
             },
             { new: true }
         );
+
+        console.log("✅ Producto aprobado exitosamente");
 
         res.json({
             message: "✅ Producto aprobado correctamente",
@@ -188,18 +202,31 @@ exports.rechazarProducto = async (req, res) => {
         const { id } = req.params;
         const { revisadoPor, motivoRechazo } = req.body;
 
-        // Validaciones mejoradas
-        if (!revisadoPor || !motivoRechazo) {
-            return res.status(400).json({ 
-                message: "Se requiere el ID del revisor y el motivo de rechazo",
-                error: revisadoPor ? "Falta el campo 'motivoRechazo'" : "Falta el campo 'revisadoPor'"
-            });
-        }
+        console.log("🔍 Rechazando producto con ID:", id);
+        console.log("📝 Datos recibidos:", req.body);
+
+        // Validaciones más flexibles
+        const revisor = revisadoPor || 'admin';
+        const motivo = motivoRechazo || 'No especificado';
 
         const producto = await ProductoRevision.findOne({ idProducto: id });
 
         if (!producto) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
+            console.log("❌ Producto no encontrado con ID:", id);
+            return res.status(404).json({ 
+                message: 'Producto no encontrado',
+                error: `No se encontró producto con ID: ${id}`
+            });
+        }
+
+        console.log("✅ Producto encontrado:", producto.idProducto, "Estado:", producto.estadoRevision);
+
+        // Verificar que el producto esté pendiente
+        if (producto.estadoRevision !== 'pendiente') {
+            return res.status(400).json({ 
+                message: 'El producto ya no está pendiente de revisión',
+                error: `Estado actual: ${producto.estadoRevision}`
+            });
         }
 
         // Actualizar el producto
@@ -207,12 +234,14 @@ exports.rechazarProducto = async (req, res) => {
             { idProducto: id },
             {
                 estadoRevision: "rechazado",
-                revisadoPor: revisadoPor,
-                motivoRechazo: motivoRechazo,
+                revisadoPor: revisor,
+                motivoRechazo: motivo,
                 fechaRevision: new Date()
             },
             { new: true }
         );
+
+        console.log("✅ Producto rechazado exitosamente");
 
         res.json({
             message: "❌ Producto rechazado correctamente",
