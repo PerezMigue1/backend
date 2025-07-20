@@ -18,4 +18,3 @@ router.get('/estadisticas/totales', controller.obtenerEstadisticas);
 
 module.exports = router;
 
-//esto ya valio 
