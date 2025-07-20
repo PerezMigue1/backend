@@ -17,7 +17,7 @@ const ProductoRevisionSchema = new mongoose.Schema({
     Disponibilidad: { type: String, enum: ["En stock", "Agotado"], default: "En stock" },
     Comentarios: { type: String },
 
-    // Datos de revisión
+    // Datos de revisión no sirve
     idUsuario: { type: String, required: true },
     idArtesano: { type: String, required: true },
     estadoRevision: { type: String, enum: ["pendiente", "aprobado", "rechazado"], default: "pendiente" },
