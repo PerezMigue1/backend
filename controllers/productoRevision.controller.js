@@ -1,6 +1,70 @@
 const ProductoRevision = require("../models/productoRevision.model");
 const Notificacion = require("../models/notificacion.model");
 const Producto = require("../models/producto.model");
+const cloudinary = require("../middlewares/cloudinary.config");
+
+// Función para generar ID consecutivo
+const generarIdConsecutivo = async () => {
+    try {
+        // Buscar el último ID en ambas colecciones
+        const [ultimoRevision, ultimoProducto] = await Promise.all([
+            ProductoRevision.findOne().sort({ idProducto: -1 }).lean(),
+            Producto.findOne().sort({ idProducto: -1 }).lean()
+        ]);
+
+        let ultimoId = "P000000";
+        
+        // Comparar y obtener el ID más alto
+        if (ultimoRevision && ultimoRevision.idProducto) {
+            ultimoId = ultimoRevision.idProducto;
+        }
+        
+        if (ultimoProducto && ultimoProducto.idProducto) {
+            if (parseInt(ultimoProducto.idProducto.slice(1)) > parseInt(ultimoId.slice(1))) {
+                ultimoId = ultimoProducto.idProducto;
+            }
+        }
+
+        // Generar el siguiente ID
+        const numeroActual = parseInt(ultimoId.slice(1));
+        const siguienteNumero = numeroActual + 1;
+        const nuevoId = "P" + siguienteNumero.toString().padStart(6, "0");
+        
+        console.log(`🔢 ID generado: ${nuevoId} (anterior: ${ultimoId})`);
+        return nuevoId;
+    } catch (error) {
+        console.error("❌ Error al generar ID:", error);
+        // Fallback: generar ID con timestamp
+        const timestamp = Date.now();
+        return "P" + timestamp.toString().slice(-6);
+    }
+};
+
+// Función para eliminar imágenes de Cloudinary
+const eliminarImagenesCloudinary = async (imagenes) => {
+    try {
+        if (!imagenes || imagenes.length === 0) return;
+        
+        const promesas = imagenes.map(async (imagenUrl) => {
+            try {
+                // Extraer el public_id de la URL de Cloudinary
+                const urlParts = imagenUrl.split('/');
+                const filenameWithExtension = urlParts[urlParts.length - 1];
+                const publicId = filenameWithExtension.split('.')[0];
+                
+                // Eliminar la imagen de Cloudinary
+                await cloudinary.uploader.destroy(publicId);
+                console.log(`🗑️ Imagen eliminada de Cloudinary: ${publicId}`);
+            } catch (error) {
+                console.error(`❌ Error al eliminar imagen ${imagenUrl}:`, error);
+            }
+        });
+        
+        await Promise.all(promesas);
+    } catch (error) {
+        console.error("❌ Error al eliminar imágenes de Cloudinary:", error);
+    }
+};
 
 // Obtener todos los productos pendientes
 exports.obtenerTodos = async (req, res) => {
@@ -50,13 +114,13 @@ exports.crear = async (req, res) => {
             }
         }
 
-        // Generar idProducto automático y consecutivo
-        const ultimo = await ProductoRevision.findOne().sort({ createdAt: -1 }).lean();
-        let nuevoId = "P000001";
-        if (ultimo && ultimo.idProducto) {
-            const num = parseInt(ultimo.idProducto.slice(1)) + 1;
-            nuevoId = "P" + num.toString().padStart(6, "0");
+        // Validar que al menos haya una imagen
+        if (imagenes.length === 0) {
+            return res.status(400).json({ message: "Se requiere al menos una imagen del producto" });
         }
+
+        // Generar idProducto automático y consecutivo
+        const nuevoId = await generarIdConsecutivo();
 
         // Crear producto con datos completos
         const nuevoProducto = new ProductoRevision({
@@ -125,6 +189,9 @@ exports.eliminarProducto = async (req, res) => {
         if (!eliminado) {
             return res.status(404).json({ message: 'Producto no encontrado' });
         }
+
+        // Eliminar imágenes de Cloudinary
+        await eliminarImagenesCloudinary(eliminado.Imagen);
 
         res.json({
             message: "🗑️ Producto eliminado correctamente",
