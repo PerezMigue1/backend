@@ -89,6 +89,11 @@ exports.crear = async (req, res) => {
             }
         }
 
+        // Validar que al menos haya una imagen
+        if (imagenes.length === 0) {
+            return res.status(400).json({ message: "Se requiere al menos una imagen del producto" });
+        }
+        
         // Generar idProducto automático y consecutivo
         const nuevoId = await generarIdConsecutivo();
 
