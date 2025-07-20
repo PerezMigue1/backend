@@ -95,49 +95,70 @@ exports.obtenerPorId = async (req, res) => {
 
 // Crear nuevo producto pendiente
 exports.crear = async (req, res) => {
-    const datos = req.body;
-
     try {
-        console.log("📥 Datos recibidos:", datos);
+        console.log("🚀 Iniciando creación de producto...");
+        console.log("📥 Datos recibidos:", req.body);
         console.log("📸 Archivos recibidos:", req.files);
+        console.log("📁 Tipo de req.files:", typeof req.files);
+        console.log("📊 Número de archivos:", req.files ? req.files.length : 0);
+
+        const datos = req.body;
 
         // Validar que venga idUsuario e idArtesano
         if (!datos.idUsuario || !datos.idArtesano) {
-            return res.status(400).json({ message: "Faltan datos de usuario o artesano" });
+            console.log("❌ Faltan datos de usuario o artesano");
+            return res.status(400).json({ 
+                message: "Faltan datos de usuario o artesano",
+                error: "idUsuario o idArtesano no proporcionados"
+            });
         }
 
         // Verifica si vienen imágenes
         const imagenes = [];
         if (req.files && Array.isArray(req.files)) {
+            console.log("📸 Procesando archivos de imagen...");
             for (const file of req.files) {
+                console.log("📄 Archivo:", file.originalname, "Path:", file.path);
                 imagenes.push(file.path);
             }
+        } else if (req.files && !Array.isArray(req.files)) {
+            console.log("📸 Procesando archivo único...");
+            imagenes.push(req.files.path);
         }
+
+        console.log("🖼️ Imágenes procesadas:", imagenes);
 
         // Validar que al menos haya una imagen
         if (imagenes.length === 0) {
-            return res.status(400).json({ message: "Se requiere al menos una imagen del producto" });
+            console.log("❌ No se recibieron imágenes");
+            return res.status(400).json({ 
+                message: "Se requiere al menos una imagen del producto",
+                error: "No se encontraron archivos de imagen"
+            });
         }
 
         // Generar idProducto automático y consecutivo
+        console.log("🔢 Generando ID consecutivo...");
         const nuevoId = await generarIdConsecutivo();
+        console.log("✅ ID generado:", nuevoId);
 
         // Crear producto con datos completos
+        console.log("📝 Creando objeto de producto...");
         const nuevoProducto = new ProductoRevision({
             idProducto: nuevoId,
             Nombre: datos.Nombre,
             Imagen: imagenes,
-            Precio: datos.Precio,
-            Descripción: datos.Descripción,
-            Dimensiones: datos.Dimensiones,
-            Colores: datos.Colores,
-            Etiquetas: datos.Etiquetas,
+            Precio: parseFloat(datos.Precio) || 0,
+            Descripción: datos.Descripción || '',
+            Dimensiones: datos.Dimensiones || '',
+            Colores: datos.Colores || '',
+            Etiquetas: datos.Etiquetas || '',
             idCategoria: datos.idCategoria,
-            Origen: datos.Origen,
-            Materiales: datos.Materiales,
-            Técnica: datos.Técnica,
-            Especificaciones: datos.Especificaciones,
-            Comentarios: datos.Comentarios,
+            Origen: datos.Origen || '',
+            Materiales: datos.Materiales || '',
+            Técnica: datos.Técnica || '',
+            Especificaciones: datos.Especificaciones || '',
+            Comentarios: datos.Comentarios || '',
             Disponibilidad: "En stock",
             idUsuario: datos.idUsuario,
             idArtesano: datos.idArtesano,
@@ -145,7 +166,9 @@ exports.crear = async (req, res) => {
             fechaSolicitud: new Date()
         });
 
+        console.log("💾 Guardando producto en la base de datos...");
         await nuevoProducto.save();
+        console.log("✅ Producto guardado exitosamente");
 
         res.status(201).json({
             message: "✅ Producto enviado correctamente para revisión",
@@ -153,8 +176,29 @@ exports.crear = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("❌ Error al crear producto:", error.message);
-        res.status(500).json({ message: "Error al crear producto", error: error.message });
+        console.error("❌ Error al crear producto:", error);
+        console.error("❌ Stack trace:", error.stack);
+        
+        // Determinar el tipo de error
+        let errorMessage = "Error al crear producto";
+        let statusCode = 500;
+
+        if (error.name === 'ValidationError') {
+            errorMessage = "Error de validación en los datos";
+            statusCode = 400;
+        } else if (error.name === 'MongoError' && error.code === 11000) {
+            errorMessage = "El producto ya existe";
+            statusCode = 409;
+        } else if (error.message.includes('multer')) {
+            errorMessage = "Error al procesar las imágenes";
+            statusCode = 400;
+        }
+
+        res.status(statusCode).json({ 
+            message: errorMessage, 
+            error: error.message,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 };
 

@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/productoRevision.controller');
-const upload = require('../middlewares/uploadCloudinary.middleware');
+const { upload, handleMulterError } = require('../middlewares/uploadCloudinary.middleware');
 
-
-router.post('/', upload.array('Imagen'), controller.crear);
+router.post('/', upload.array('Imagen'), handleMulterError, controller.crear);
 router.get('/', controller.obtenerTodos);
 router.get('/:id', controller.obtenerPorId);
 router.put('/:id', controller.actualizarProducto);
