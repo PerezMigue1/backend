@@ -2,10 +2,6 @@ const ProductoRevision = require("../models/productoRevision.model");
 const Notificacion = require("../models/notificacion.model");
 const Producto = require("../models/producto.model");
 
-const ProductoRevision = require("../models/productoRevision.model");
-const Notificacion = require("../models/notificacion.model");
-const Producto = require("../models/producto.model");
-
 // Función para generar ID consecutivo
 const generarIdConsecutivo = async () => {
     try {
