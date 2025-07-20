@@ -73,6 +73,8 @@ exports.crear = async (req, res) => {
     try {
         console.log("📥 Datos recibidos:", datos);
         console.log("📸 Archivos recibidos:", req.files);
+        console.log("📝 Descripción recibida:", datos.Descripción);
+        console.log("🎨 Técnica recibida:", datos.Técnica);
 
         // Validar que venga idUsuario e idArtesano
         if (!datos.idUsuario || !datos.idArtesano) {
@@ -87,33 +89,52 @@ exports.crear = async (req, res) => {
             }
         }
 
+        // Validar que al menos haya una imagen
+        if (imagenes.length === 0) {
+            return res.status(400).json({ message: "Se requiere al menos una imagen del producto" });
+        }
+
         // Generar idProducto automático y consecutivo
         const nuevoId = await generarIdConsecutivo();
 
-        // Crear producto con datos completos
-        const nuevoProducto = new ProductoRevision({
+        // Preparar datos del producto con manejo explícito de campos con acentos
+        const datosProducto = {
             idProducto: nuevoId,
-            Nombre: datos.Nombre,
+            Nombre: datos.Nombre || '',
             Imagen: imagenes,
-            Precio: datos.Precio,
-            Descripción: datos.Descripción,
-            Dimensiones: datos.Dimensiones,
-            Colores: datos.Colores,
-            Etiquetas: datos.Etiquetas,
+            Precio: parseFloat(datos.Precio) || 0,
+            Descripción: datos.Descripción || '',
+            Dimensiones: datos.Dimensiones || '',
+            Colores: datos.Colores || '',
+            Etiquetas: datos.Etiquetas || '',
             idCategoria: datos.idCategoria,
-            Origen: datos.Origen,
-            Materiales: datos.Materiales,
-            Técnica: datos.Técnica,
-            Especificaciones: datos.Especificaciones,
-            Comentarios: datos.Comentarios,
+            Origen: datos.Origen || '',
+            Materiales: datos.Materiales || '',
+            Técnica: datos.Técnica || '',
+            Especificaciones: datos.Especificaciones || '',
+            Comentarios: datos.Comentarios || '',
             Disponibilidad: "En stock",
             idUsuario: datos.idUsuario,
             idArtesano: datos.idArtesano,
             estadoRevision: "pendiente",
             fechaSolicitud: new Date()
+        };
+
+        console.log("📋 Datos del producto a guardar:", {
+            Nombre: datosProducto.Nombre,
+            Descripción: datosProducto.Descripción,
+            Técnica: datosProducto.Técnica,
+            Precio: datosProducto.Precio
         });
 
+        // Crear producto con datos completos
+        const nuevoProducto = new ProductoRevision(datosProducto);
+
         await nuevoProducto.save();
+
+        console.log("✅ Producto guardado exitosamente");
+        console.log("📝 Descripción guardada:", nuevoProducto.Descripción);
+        console.log("🎨 Técnica guardada:", nuevoProducto.Técnica);
 
         res.status(201).json({
             message: "✅ Producto enviado correctamente para revisión",
@@ -122,6 +143,7 @@ exports.crear = async (req, res) => {
 
     } catch (error) {
         console.error("❌ Error al crear producto:", error.message);
+        console.error("❌ Error completo:", error);
         res.status(500).json({ message: "Error al crear producto", error: error.message });
     }
 };
