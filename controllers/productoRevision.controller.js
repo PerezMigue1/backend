@@ -73,8 +73,8 @@ exports.crear = async (req, res) => {
     try {
         console.log("📥 Datos recibidos:", datos);
         console.log("📸 Archivos recibidos:", req.files);
-        console.log("📝 Descripción recibida:", datos.Descripción);
-        console.log("🎨 Técnica recibida:", datos.Técnica);
+        console.log("📝 Descripción recibida:", datos.Descripcion);
+        console.log("🎨 Técnica recibida:", datos.Tecnica);
 
         // Validar que venga idUsuario e idArtesano
         if (!datos.idUsuario || !datos.idArtesano) {
@@ -98,14 +98,14 @@ exports.crear = async (req, res) => {
             Nombre: datos.Nombre || '',
             Imagen: imagenes,
             Precio: parseFloat(datos.Precio) || 0,
-            Descripción: datos.Descripción || '',
+            Descripción: datos.Descripcion || '',
             Dimensiones: datos.Dimensiones || '',
             Colores: datos.Colores || '',
             Etiquetas: datos.Etiquetas || '',
             idCategoria: datos.idCategoria,
             Origen: datos.Origen || '',
             Materiales: datos.Materiales || '',
-            Técnica: datos.Técnica || '',
+            Técnica: datos.Tecnica || '',
             Especificaciones: datos.Especificaciones || '',
             Comentarios: datos.Comentarios || '',
             Disponibilidad: "En stock",
@@ -117,8 +117,8 @@ exports.crear = async (req, res) => {
 
         console.log("📋 Datos del producto a guardar:", {
             Nombre: datosProducto.Nombre,
-            Descripción: datosProducto.Descripción,
-            Técnica: datosProducto.Técnica,
+            Descripción: datosProducto.Descripcion,
+            Técnica: datosProducto.Tecnica,
             Precio: datosProducto.Precio
         });
 
@@ -128,8 +128,8 @@ exports.crear = async (req, res) => {
         await nuevoProducto.save();
 
         console.log("✅ Producto guardado exitosamente");
-        console.log("📝 Descripción guardada:", nuevoProducto.Descripción);
-        console.log("🎨 Técnica guardada:", nuevoProducto.Técnica);
+        console.log("📝 Descripción guardada:", nuevoProducto.Descripcion);
+        console.log("🎨 Técnica guardada:", nuevoProducto.Tecnica);
 
         res.status(201).json({
             message: "✅ Producto enviado correctamente para revisión",
@@ -246,14 +246,14 @@ exports.aprobarProducto = async (req, res) => {
             Nombre: producto.Nombre,
             Imagen: producto.Imagen,
             Precio: producto.Precio,
-            Descripción: producto.Descripción,
+            Descripción: producto.Descripcion,
             Dimensiones: producto.Dimensiones,
             Colores: producto.Colores,
             Etiquetas: producto.Etiquetas,
             idCategoria: producto.idCategoria,
             Origen: producto.Origen,
             Materiales: producto.Materiales,
-            Técnica: producto.Técnica,
+            Técnica: producto.Tecnica,
             Especificaciones: producto.Especificaciones,
             Disponibilidad: producto.Disponibilidad,
             Comentarios: comentarios || '',
