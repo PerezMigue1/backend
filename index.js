@@ -29,6 +29,9 @@ app.use("/api/contacto", require("./routes/contactoForm.routes"));
 app.use("/api/publicaciones", require('./routes/productoRevision.routes'));
 app.use('/api/notificaciones', require('./routes/notificacion.routes'));
 app.use('/api/gastronomia', require('./routes/gastronomia.routes'));
+app.use('/api/contactoHospedaje', require('./routes/contactoHospedero.routes'));
+app.use('/api/publicaHospedaje', require('./routes/publicacionHospedaje.routes'));
+
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
