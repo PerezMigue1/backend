@@ -5,7 +5,7 @@ const contactoChefSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    idHospedero: {
+    idChef: {
         type: String,
         required: true,
         unique: true
