@@ -84,3 +84,20 @@ exports.eliminarContacto = async (req, res) => {
         res.status(500).json({ mensaje: "Error al eliminar contacto", error });
     }
 };
+
+// Obtener artesano por idUsuario
+exports.obtenerHospederoPorUsuario = async (req, res) => {
+    try {
+        const { idUsuario } = req.params;
+        const hospedero = await ContactoHospedero.findOne({ idUsuario });
+
+        if (!hospedero) {
+            return res.status(404).json({ message: "No se encontró hospedero para este usuario." });
+        }
+
+        res.json(hospedero);
+    } catch (error) {
+        console.error("❌ Error al obtener hospedero por idUsuario:", error);
+        res.status(500).json({ message: "Error en el servidor" });
+    }
+};
