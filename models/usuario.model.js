@@ -22,9 +22,7 @@ const UsuarioSchema = new mongoose.Schema({
     sexo: { type: String, enum: ["Masculino", "Femenino", "Otro"], required: true },
     edad: { type: Number, required: true },
     recuperacion: { type: PreguntaRecuperacionSchema, required: true },
-    roles: { type: [String], default: ["turista"], enum: ["turista", "artesano", "hospedero", "admin"] },
-    // Para compatibilidad con usuarios antiguos:
-    rol: { type: String, default: "turista", enum: ["turista", "artesano", "admin"] },
+    rol: { type: [String], default: ["turista"], enum: ["turista", "artesano", "hospedero", "admin"] },
     resetPasswordToken: { type: String, default: null },
     resetPasswordExpires: { type: Date, default: null }
 }, { timestamps: true });
