@@ -1,11 +1,42 @@
 const ContactoHospedero = require('../models/contactoHospedero.model');
+const Usuario = require('../models/usuario.model');
 
 // Crear nuevo contacto hospedero
 exports.crearContactoHospedero = async (req, res) => {
     try {
-        const nuevoContacto = new ContactoHospedero(req.body);
-        const guardado = await nuevoContacto.save();
-        res.status(201).json(guardado);
+        const datos = req.body;
+        // Manejar redes sociales desde FormData
+        datos.redesSociales = {
+            facebook: datos['redesSociales.facebook'] || '',
+            instagram: datos['redesSociales.instagram'] || '',
+            whatsapp: datos['redesSociales.whatsapp'] || '',
+        };
+        // Imagen si existe
+        if (req.file) {
+            datos.imagenPerfil = req.file.path || req.file?.path;
+        }
+        // Generar idHospedero automático
+        const ultimo = await ContactoHospedero.findOne().sort({ createdAt: -1 }).lean();
+        let nuevoId = "H0001";
+        if (ultimo && ultimo.idHospedero) {
+            const num = parseInt(ultimo.idHospedero.slice(1)) + 1;
+            nuevoId = "H" + num.toString().padStart(4, "0");
+        }
+        datos.idHospedero = nuevoId;
+        // Guardar contacto
+        const nuevoContacto = new ContactoHospedero(datos);
+        await nuevoContacto.save();
+        // Actualizar roles del usuario
+        const usuario = await Usuario.findOne({ _id: datos.idUsuario });
+        if (usuario) {
+            if (!usuario.roles) usuario.roles = [usuario.rol || 'turista'];
+            if (!usuario.roles.includes('hospedero')) usuario.roles.push('hospedero');
+            await usuario.save();
+        }
+        res.status(201).json({
+            message: "Contacto hospedero creado correctamente",
+            contacto: nuevoContacto
+        });
     } catch (error) {
         res.status(400).json({ mensaje: "Error al crear contacto", error });
     }

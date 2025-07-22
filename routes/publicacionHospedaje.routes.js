@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const controllerPubliHospedaje = require('../controllers/publicacionHospedaje.controller');
+const upload = require('../middlewares/uploadCloudinary.middleware');
 
-router.post('/', controllerPubliHospedaje.crearPublicacion);
+router.post('/', upload.array('Imagenes'), controllerPubliHospedaje.crearPublicacion);
 router.get('/', controllerPubliHospedaje.obtenerPublicaciones);
 router.get('/:id', controllerPubliHospedaje.obtenerPublicacionPorId);
 router.put('/:id', controllerPubliHospedaje.actualizarPublicacion);

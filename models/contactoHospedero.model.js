@@ -47,7 +47,8 @@ const contactoHospederoSchema = new mongoose.Schema({
         type: String,
         enum: ['activo', 'inactivo'],
         default: 'activo'
-    }
+    },
+    roles: { type: [String], default: ["hospedero"] }
 }, {
     timestamps: true
 });
