@@ -27,10 +27,12 @@ exports.crearContactoHospedero = async (req, res) => {
         const nuevoContacto = new ContactoHospedero(datos);
         await nuevoContacto.save();
         // Actualizar roles del usuario
+        //aqui mero 
+        
         const usuario = await Usuario.findOne({ _id: datos.idUsuario });
         if (usuario) {
-            if (!usuario.roles) usuario.roles = [usuario.rol || 'turista'];
-            if (!usuario.roles.includes('hospedero')) usuario.roles.push('hospedero');
+            if (!Array.isArray(usuario.rol)) usuario.rol = [usuario.rol || 'turista'];
+            if (!usuario.rol.includes('hospedero')) usuario.rol.push('hospedero');
             await usuario.save();
         }
         res.status(201).json({
