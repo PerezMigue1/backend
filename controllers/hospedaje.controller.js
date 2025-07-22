@@ -21,7 +21,7 @@ exports.obtenerHospedajes = async (req, res) => {
 
 exports.obtenerHospedajePorId = async (req, res) => {
     try {
-        const hospedaje = await Hospedaje.findById(req.params.id);
+        const hospedaje = await Hospedaje.findOne({ idHotel: req.params.id });
         if (!hospedaje) return res.status(404).json({ mensaje: 'No encontrado' });
         res.json(hospedaje);
     } catch (error) {
