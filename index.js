@@ -31,6 +31,7 @@ app.use('/api/notificaciones', require('./routes/notificacion.routes'));
 app.use('/api/gastronomia', require('./routes/gastronomia.routes'));
 app.use('/api/contactoHospedero', require('./routes/contactoHospedero.routes'));
 app.use('/api/publicaHospedaje', require('./routes/publicacionHospedaje.routes'));
+app.use('/api/contactoChef', require('./routes/contactoChef.routes'));
 
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
