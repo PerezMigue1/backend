@@ -23,17 +23,9 @@ exports.crearPublicacion = async (req, res) => {
             return res.status(400).json({ mensaje: "Se requiere al menos una imagen del platillo" });
         }
 
-        // Generar idPlatillo automático
-        const ultimo = await Publicacion.findOne().sort({ idPlatillo: -1 }).lean();
-        let nuevoId = "P000001";
-        if (ultimo && ultimo.idPlatillo) {
-            const num = parseInt(ultimo.idPlatillo.slice(1)) + 1;
-            nuevoId = "P" + num.toString().padStart(6, "0");
-        }
-
-        // Preparar datos según estructura completa
+        // Eliminar la generación de idPlatillo automático
+        // y la asignación en datosPublicacion
         const datosPublicacion = {
-            idPlatillo: nuevoId,
             nombre: datos.nombre || '',
             descripcion: datos.descripcion || '',
             ingredientes: datos.ingredientes || [''],

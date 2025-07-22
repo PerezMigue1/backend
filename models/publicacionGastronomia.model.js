@@ -1,11 +1,6 @@
 const mongoose = require('mongoose');
 
 const publicacionGastronomiaSchema = new mongoose.Schema({
-    idPlatillo: {
-        type: String,
-        required: true,
-        unique: true
-    },
     nombre: {
         type: String,
         required: true
