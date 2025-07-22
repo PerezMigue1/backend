@@ -104,3 +104,5 @@ const publicacionGastronomiaSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('PublicacionGastronomia', publicacionGastronomiaSchema, 'publicaciones-gastronomia');
+
+//no se usa id personalizado
