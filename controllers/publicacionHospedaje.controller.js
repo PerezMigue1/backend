@@ -5,10 +5,10 @@ const ContactoHospedero = require('../models/contactoHospedero.model');
 exports.crearPublicacion = async (req, res) => {
     try {
         const datos = req.body;
-        // Validar que el usuario sea hospedero
-        const hospedero = await ContactoHospedero.findOne({ idUsuario: datos.idUsuario });
+        // Validar que el usuario sea hospedero y que el idHospedero corresponda al usuario autenticado
+        const hospedero = await ContactoHospedero.findOne({ idHospedero: datos.idHospedero, idUsuario: datos.idUsuario });
         if (!hospedero) {
-            return res.status(403).json({ mensaje: "Debes estar registrado como hospedero para publicar." });
+            return res.status(403).json({ mensaje: "No tienes permisos para publicar con este hospedero." });
         }
         // Manejar imágenes
         const imagenes = [];
