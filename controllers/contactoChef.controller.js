@@ -5,19 +5,24 @@ const Usuario = require('../models/usuario.model');
 exports.crearContactoChef = async (req, res) => {
     try {
         const datos = req.body;
-
+        console.log("📥 BODY recibido:", datos);
+        // Validar campos obligatorios
+        const camposObligatorios = ['idUsuario', 'nombre', 'correo', 'telefono'];
+        for (const campo of camposObligatorios) {
+            if (!datos[campo] || datos[campo] === '') {
+                return res.status(400).json({ mensaje: `El campo '${campo}' es obligatorio.` });
+            }
+        }
         // Manejar redes sociales desde FormData
         datos.redesSociales = {
             facebook: datos['redesSociales.facebook'] || '',
             instagram: datos['redesSociales.instagram'] || '',
             whatsapp: datos['redesSociales.whatsapp'] || '',
         };
-
         // Imagen si existe
         if (req.file) {
             datos.imagenPerfil = req.file.path || req.file?.path;
         }
-
         // Generar idChef automático
         const ultimo = await ContactoChef.findOne().sort({ createdAt: -1 }).lean();
         let nuevoId = "C0001";
@@ -26,11 +31,9 @@ exports.crearContactoChef = async (req, res) => {
             nuevoId = "C" + num.toString().padStart(4, "0");
         }
         datos.idChef = nuevoId;
-
         // Guardar contacto
         const nuevoContacto = new ContactoChef(datos);
         await nuevoContacto.save();
-
         // Actualizar roles del usuario
         const usuario = await Usuario.findOne({ _id: datos.idUsuario });
         if (usuario) {
@@ -38,12 +41,13 @@ exports.crearContactoChef = async (req, res) => {
             if (!usuario.rol.includes('chef')) usuario.rol.push('chef');
             await usuario.save();
         }
-
+        console.log("✅ Chef registrado correctamente:", nuevoContacto.idChef);
         res.status(201).json({
             message: "Contacto chef creado correctamente",
             contacto: nuevoContacto
         });
     } catch (error) {
+        console.error("❌ Error al crear chef:", error.message);
         res.status(400).json({ mensaje: "Error al crear contacto", error });
     }
 };
