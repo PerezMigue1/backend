@@ -40,6 +40,7 @@ exports.crearPublicacion = async (req, res) => {
         const datosPublicacion = {
             idHotel: nuevoId,
             Nombre: datos.Nombre || '',
+             Descripcion: datos.Descripcion || '',
             Imagenes: imagenes,
             Ubicacion: datos.Ubicacion || '',
             Horario: datos.Horario || '',
