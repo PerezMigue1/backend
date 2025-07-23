@@ -202,7 +202,7 @@ exports.rechazarPublicacion = async (req, res) => {
         await publicacion.save();
 
         const notificacion = new Notificacion({
-            idUsuario: publicacion.idHospedero,
+            idUsuario: publicacion.idUsuario,
             tipo: 'publicacion',
             producto: publicacion.Nombre,
             estado: 'rechazado',
