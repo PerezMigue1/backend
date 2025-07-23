@@ -2,6 +2,7 @@ const Publicacion = require('../models/publicacionHospedaje.model');
 const ContactoHospedero = require('../models/contactoHospedero.model');
 const Notificacion = require('../models/notificacion.model');
 const Hospedaje = require('../models/hospedaje.model');
+const mongoose = require('mongoose');
 
 
 // Generar ID consecutivo tipo "H000001"
@@ -124,8 +125,13 @@ exports.aprobarPublicacion = async (req, res) => {
     try {
         const { id } = req.params;
         const { revisadoPor, comentarios } = req.body;
-        const publicacion = await Publicacion.findOne({ idHotel: id });
-
+        let publicacion = null;
+        if (mongoose.Types.ObjectId.isValid(id)) {
+            publicacion = await Publicacion.findById(id);
+        }
+        if (!publicacion) {
+            publicacion = await Publicacion.findOne({ idHotel: id });
+        }
         if (!publicacion) return res.status(404).json({ mensaje: "Publicación no encontrada" });
 
         if (publicacion.estadoRevision !== 'pendiente') {
@@ -176,8 +182,13 @@ exports.rechazarPublicacion = async (req, res) => {
     try {
         const { id } = req.params;
         const { revisadoPor, motivoRechazo, comentarios } = req.body;
-        const publicacion = await Publicacion.findOne({ idHotel: id });
-
+        let publicacion = null;
+        if (mongoose.Types.ObjectId.isValid(id)) {
+            publicacion = await Publicacion.findById(id);
+        }
+        if (!publicacion) {
+            publicacion = await Publicacion.findOne({ idHotel: id });
+        }
         if (!publicacion) return res.status(404).json({ mensaje: "Publicación no encontrada" });
 
         if (publicacion.estadoRevision !== 'pendiente') {
