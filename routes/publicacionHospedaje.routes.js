@@ -9,5 +9,10 @@ router.get('/:id', controllerPubliHospedaje.obtenerPublicacionPorId);
 router.put('/:id', controllerPubliHospedaje.actualizarPublicacion);
 router.delete('/:id', controllerPubliHospedaje.eliminarPublicacion);
 
+router.put('/:id/aprobar', controllerPubliHospedaje.aprobarPublicacion);
+router.put('/:id/rechazar', controllerPubliHospedaje.rechazarPublicacion);
+
+router.get('/estado/:estado', controllerPubliHospedaje.obtenerPorEstado);
+router.get('/estadisticas/totales', controllerPubliHospedaje.obtenerEstadisticas);
 
 module.exports = router;
