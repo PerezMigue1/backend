@@ -1,6 +1,7 @@
 const Publicacion = require('../models/publicacionHospedaje.model');
 const ContactoHospedero = require('../models/contactoHospedero.model');
 const Notificacion = require('../models/notificacion.model');
+const Hospedaje = require('../models/hospedaje.model');
 
 // Generar ID consecutivo tipo "H000001" de forma segura
 const generarIdHotelSeguro = async () => {
@@ -145,6 +146,30 @@ exports.aprobarPublicacion = async (req, res) => {
         publicacion.comentarios = comentarios || '';
         await publicacion.save();
 
+        // ✅ Copiar a colección Hospedaje
+        const nuevoHospedaje = new Hospedaje({
+        idHotel: publicacion.nuevoId || publicacion.idHotel, // Asegura el ID correcto
+        Nombre: publicacion.Nombre,
+        Descripcion: publicacion.Descripcion,
+        Imagenes: publicacion.imagenes,
+        Ubicacion: publicacion.Ubicacion,
+        Horario: publicacion.Horario,
+        Telefono: publicacion.Telefono,
+        Huespedes: publicacion.Huespedes,
+        Precio: publicacion.Precio,
+        Servicios: publicacion.Servicios,
+        Coordenadas: {
+            lat: publicacion.Coordenadas?.lat,
+            lng: publicacion.Coordenadas?.lng
+        },
+        Categoria: publicacion.Categoria,
+        idHospedero: publicacion.idHospedero,
+        });
+        
+        await nuevoHospedaje.save();
+
+
+        // Notificación
         const notificacion = new Notificacion({
             idUsuario: publicacion.idHospedero,
             tipo: 'publicacion',
@@ -155,7 +180,7 @@ exports.aprobarPublicacion = async (req, res) => {
         });
         await notificacion.save();
 
-        res.json({ mensaje: "✅ Publicación aprobada", publicacion });
+        res.json({ mensaje: "✅ Publicación aprobada y publicada", publicacion });
     } catch (error) {
         res.status(500).json({ mensaje: "Error al aprobar publicación", error });
     }
