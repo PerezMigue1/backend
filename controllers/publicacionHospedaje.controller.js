@@ -77,7 +77,7 @@ exports.obtenerPublicaciones = async (req, res) => {
         const publicaciones = await Publicacion.find();
         res.json(publicaciones);
    catch (error) {
-    console.log("Error al crear publicación:", error); // <-- Agrega esto
+    
     res.status(500).json({ mensaje: "Error al crear publicación", error });
 }
 };
