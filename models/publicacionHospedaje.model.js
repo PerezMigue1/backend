@@ -10,6 +10,10 @@ const publicacionHospedajeSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+     Descripcion: {  
+        type: String,
+        required: false 
+    },
     Imagenes: {
         type: [String],
         required: true
