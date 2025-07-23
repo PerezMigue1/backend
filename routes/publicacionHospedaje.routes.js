@@ -5,7 +5,7 @@ const upload = require('../middlewares/uploadCloudinary.middleware');
 
 router.post('/', upload.array('Imagenes'), controllerPubliHospedaje.crearPublicacion);
 router.get('/', controllerPubliHospedaje.obtenerPublicaciones);
-router.get('/:id', controllerPubliHospedaje.obtenerPublicacionPorId);
+router.get('/:id', controllerPubliHospedaje.obtenerPorId);
 router.put('/:id', controllerPubliHospedaje.actualizarPublicacion);
 router.delete('/:id', controllerPubliHospedaje.eliminarPublicacion);
 

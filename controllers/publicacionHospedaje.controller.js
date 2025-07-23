@@ -1,6 +1,7 @@
 const Publicacion = require('../models/publicacionHospedaje.model');
 const ContactoHospedero = require('../models/contactoHospedero.model');
 const Notificacion = require('../models/notificacion.model');
+const Hospedaje = require('../models/hospedaje.model');
 
 
 // Generar ID consecutivo tipo "H000001"
@@ -82,8 +83,8 @@ exports.obtenerPublicaciones = async (req, res) => {
     }
 };
 
-// Obtener publicación por ID
-exports.obtenerPublicacionPorId = async (req, res) => {
+// Obtener publicación por ID (MongoDB _id)
+exports.obtenerPorId = async (req, res) => {
     try {
         const publicacion = await Publicacion.findById(req.params.id);
         if (!publicacion) return res.status(404).json({ mensaje: "Publicación no encontrada" });
@@ -98,7 +99,10 @@ exports.actualizarPublicacion = async (req, res) => {
     try {
         const actualizada = await Publicacion.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!actualizada) return res.status(404).json({ mensaje: "Publicación no encontrada" });
-        res.json(actualizada);
+        res.json({
+            mensaje: "✅ Publicación actualizada correctamente",
+            publicacion: actualizada
+        });
     } catch (error) {
         res.status(400).json({ mensaje: "Error al actualizar publicación", error });
     }
@@ -109,10 +113,10 @@ exports.eliminarPublicacion = async (req, res) => {
     try {
         const eliminada = await Publicacion.findByIdAndDelete(req.params.id);
         if (!eliminada) return res.status(404).json({ mensaje: "Publicación no encontrada" });
-        res.json({ mensaje: "Publicación eliminada correctamente" });
+        res.json({ mensaje: "🗑️ Publicación eliminada correctamente", publicacion: eliminada });
     } catch (error) {
-        res.status(500).json({ mensaje: "Error al eliminar publicación", error });
-    }
+        res.status(500).json({ mensaje: "Error al eliminar publicación", error });
+    }
 };
 
 // Aprobar publicación
@@ -133,6 +137,23 @@ exports.aprobarPublicacion = async (req, res) => {
         publicacion.fechaRevision = new Date();
         publicacion.comentarios = comentarios || '';
         await publicacion.save();
+
+        // Copiar a la colección final Hospedaje
+        const nuevoHospedaje = new Hospedaje({
+            idHotel: publicacion.idHotel,
+            Nombre: publicacion.Nombre,
+            Imagenes: publicacion.Imagenes,
+            Ubicacion: publicacion.Ubicacion,
+            Horario: publicacion.Horario,
+            Telefono: publicacion.Telefono,
+            Huespedes: publicacion.Huespedes,
+            Precio: publicacion.Precio,
+            Servicios: publicacion.Servicios,
+            Coordenadas: publicacion.Coordenadas,
+            Categoria: publicacion.Categoria,
+            idHospedero: publicacion.idHospedero
+        });
+        await nuevoHospedaje.save();
 
         const notificacion = new Notificacion({
             idUsuario: publicacion.idHospedero,
