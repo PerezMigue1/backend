@@ -3,71 +3,119 @@ const ContactoHospedero = require('../models/contactoHospedero.model');
 const Notificacion = require('../models/notificacion.model');
 
 
-// Generar ID consecutivo tipo "H000001"
-const generarIdHotel = async () => {
-    const ultimo = await Publicacion.findOne().sort({ idHotel: -1 }).lean();
-    let nuevoId = "H000001";
-    if (ultimo && ultimo.idHotel) {
-        const num = parseInt(ultimo.idHotel.slice(1)) + 1;
-        nuevoId = "H" + num.toString().padStart(6, "0");
+// Generar ID consecutivo tipo "H000001" de forma segura
+const generarIdHotelSeguro = async () => {
+    let intentos = 0;
+    let nuevoId;
+    while (intentos < 5) {
+        const ultimo = await Publicacion.findOne().sort({ idHotel: -1 }).lean();
+        if (ultimo && ultimo.idHotel) {
+            const num = parseInt(ultimo.idHotel.slice(1)) + 1;
+            nuevoId = "H" + num.toString().padStart(6, "0");
+        } else {
+            nuevoId = "H000001";
+        }
+        // Verifica si ya existe
+        const existe = await Publicacion.findOne({ idHotel: nuevoId });
+        if (!existe) return nuevoId;
+        intentos++;
     }
-    return nuevoId;
+    // Fallback: usa timestamp
+    return "H" + Date.now().toString().slice(-6);
 };
 
 // Crear nueva publicación de hospedaje
 exports.crearPublicacion = async (req, res) => {
     try {
+        console.log("📥 BODY recibido:", req.body);
+        console.log("📸 FILES recibidos:", req.files);
+
         const datos = req.body;
+
+        // Validar que vengan idUsuario e idHospedero
+        if (!datos.idUsuario || !datos.idHospedero) {
+            return res.status(400).json({ mensaje: "Faltan datos de usuario o hospedero" });
+        }
+
+        // Buscar hospedero válido
         const hospedero = await ContactoHospedero.findOne({
             idHospedero: datos.idHospedero,
             idUsuario: datos.idUsuario
         });
-
         if (!hospedero) {
             return res.status(403).json({ mensaje: "No tienes permisos para publicar con este hospedero." });
         }
 
+        // Procesar imágenes
         const imagenes = [];
         if (req.files && Array.isArray(req.files)) {
-            req.files.forEach(file => imagenes.push(file.path));
+            for (const file of req.files) {
+                imagenes.push(file.path);
+            }
         }
         if (imagenes.length === 0) {
             return res.status(400).json({ mensaje: "Se requiere al menos una imagen del hospedaje" });
         }
 
-        const nuevoId = await generarIdHotel();
+        // Validar campos obligatorios
+        const camposObligatorios = [
+            'Nombre', 'Ubicacion', 'Horario', 'Telefono', 'Huespedes', 'Precio', 'Servicios', 'Categoria', 'Coordenadas.lat', 'Coordenadas.lng'
+        ];
+        for (const campo of camposObligatorios) {
+            if (!datos[campo] || datos[campo] === '') {
+                return res.status(400).json({ mensaje: `El campo '${campo}' es obligatorio.` });
+            }
+        }
 
+
+
+
+
+        // Generar ID consecutivo SEGURO
+        const nuevoId = await generarIdHotelSeguro();
+
+
+
+
+        
+        // Preparar datos de la publicación
         const datosPublicacion = {
             idHotel: nuevoId,
-            Nombre: datos.Nombre || '',
+            Nombre: datos.Nombre,
             Imagenes: imagenes,
-            Ubicacion: datos.Ubicacion || '',
-            Horario: datos.Horario || '',
-            Telefono: datos.Telefono || '',
-            Huespedes: datos.Huespedes || '',
-            Precio: parseFloat(datos.Precio) || 0,
-            Servicios: datos.Servicios || '',
+            Ubicacion: datos.Ubicacion,
+            Horario: datos.Horario,
+            Telefono: datos.Telefono,
+            Huespedes: datos.Huespedes,
+            Precio: parseFloat(datos.Precio),
+            Servicios: datos.Servicios,
             Coordenadas: {
-                lat: parseFloat(datos['Coordenadas.lat']) || 0,
-                lng: parseFloat(datos['Coordenadas.lng']) || 0
+                lat: parseFloat(datos['Coordenadas.lat']),
+                lng: parseFloat(datos['Coordenadas.lng'])
             },
-            Categoria: datos.Categoria || 'Económico',
+            Categoria: datos.Categoria,
             idUsuario: datos.idUsuario,
             idHospedero: datos.idHospedero,
             estadoRevision: 'pendiente',
             fechaSolicitud: new Date()
         };
 
+        console.log("📋 Datos de la publicación a guardar:", datosPublicacion);
+
+        // Crear y guardar la publicación
         const nueva = new Publicacion(datosPublicacion);
-        const guardada = await nueva.save();
+        await nueva.save();
+
+        console.log("✅ Publicación guardada exitosamente");
 
         res.status(201).json({
             mensaje: "✅ Publicación creada y enviada a revisión",
-            publicacion: guardada
+            publicacion: nueva
         });
-
     } catch (error) {
-        res.status(500).json({ mensaje: "Error al crear publicación", error });
+        console.error("❌ Error al crear publicación:", error.message);
+        console.error("❌ Error completo:", error);
+        res.status(500).json({ mensaje: "Error al crear publicación", error: error.message });
     }
 };
 
