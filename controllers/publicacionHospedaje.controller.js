@@ -35,9 +35,17 @@ exports.crearPublicacion = async (req, res) => {
             return res.status(403).json({ mensaje: "No tienes permisos para publicar con este hospedero." });
         }
 
-        const imagenes = [];
+        // Manejo de imágenes (array)
+        let imagenes = [];
         if (req.files && Array.isArray(req.files)) {
-            req.files.forEach(file => imagenes.push(file.path));
+            imagenes = req.files.map(file => file.path);
+        } else if (req.files && req.files.Imagenes) {
+            // Multer puede poner los archivos en req.files.Imagenes
+            if (Array.isArray(req.files.Imagenes)) {
+                imagenes = req.files.Imagenes.map(file => file.path);
+            } else {
+                imagenes = [req.files.Imagenes.path];
+            }
         }
         if (imagenes.length === 0) {
             return res.status(400).json({ mensaje: "Se requiere al menos una imagen del hospedaje" });
@@ -45,24 +53,11 @@ exports.crearPublicacion = async (req, res) => {
 
         const nuevoId = await generarIdHotelSeguro();
 
+        // Guardar todos los campos tal como se reciben
         const datosPublicacion = {
             idHotel: nuevoId,
-            Nombre: datos.Nombre || '',
-            Descripcion: datos.Descripcion || '',
+            ...datos,
             Imagenes: imagenes,
-            Ubicacion: datos.Ubicacion || '',
-            Horario: datos.Horario || '',
-            Telefono: datos.Telefono || '',
-            Huespedes: datos.Huespedes || '',
-            Precio: parseFloat(datos.Precio) || 0,
-            Servicios: datos.Servicios || '',
-            Coordenadas: {
-                lat: parseFloat(datos['Coordenadas.lat']) || 0,
-                lng: parseFloat(datos['Coordenadas.lng']) || 0
-            },
-            Categoria: datos.Categoria || 'Economico',
-            idUsuario: datos.idUsuario,
-            idHospedero: datos.idHospedero,
             estadoRevision: 'pendiente',
             fechaSolicitud: new Date()
         };
@@ -74,7 +69,6 @@ exports.crearPublicacion = async (req, res) => {
             mensaje: "✅ Publicación creada y enviada a revisión",
             publicacion: guardada
         });
-
     } catch (error) {
         res.status(500).json({ mensaje: "Error al crear publicación", error });
     }
@@ -86,8 +80,7 @@ exports.obtenerPublicaciones = async (req, res) => {
         const publicaciones = await Publicacion.find();
         res.json(publicaciones);
     } catch (error) {
-        console.error("❌ Error al obtener pendientes:", error);
-        res.status(500).json({ message: 'Error en el servidor' });
+        res.status(500).json({ mensaje: "Error al obtener publicaciones", error });
     }
 };
 
@@ -132,7 +125,6 @@ exports.aprobarPublicacion = async (req, res) => {
         const publicacion = await Publicacion.findOne({ idHotel: id });
 
         if (!publicacion) return res.status(404).json({ mensaje: "Publicación no encontrada" });
-
         if (publicacion.estadoRevision !== 'pendiente') {
             return res.status(400).json({ mensaje: "Esta publicación ya fue revisada" });
         }
@@ -143,10 +135,10 @@ exports.aprobarPublicacion = async (req, res) => {
         publicacion.comentarios = comentarios || '';
         await publicacion.save();
 
-        const nuevoHospedaje = new Hospedaje({
+        // Crear documento en la colección hospedaje (solo campos válidos)
+        const hospedajeData = {
             idHotel: publicacion.idHotel,
             Nombre: publicacion.Nombre,
-            Descripcion: publicacion.Descripcion,
             Imagenes: publicacion.Imagenes,
             Ubicacion: publicacion.Ubicacion,
             Horario: publicacion.Horario,
@@ -154,29 +146,29 @@ exports.aprobarPublicacion = async (req, res) => {
             Huespedes: publicacion.Huespedes,
             Precio: publicacion.Precio,
             Servicios: publicacion.Servicios,
-            Coordenadas: {
-                lat: publicacion.Coordenadas?.lat,
-                lng: publicacion.Coordenadas?.lng
-            },
-            Categoria: publicacion.Categoria,
-            idHospedero: publicacion.idHospedero
-        });
+            Coordenadas: publicacion.Coordenadas,
+            Categoria: publicacion.Categoria
+        };
+        // Evitar duplicados
+        const existe = await Hospedaje.findOne({ idHotel: publicacion.idHotel });
+        if (!existe) {
+            const nuevoHospedaje = new Hospedaje(hospedajeData);
+            await nuevoHospedaje.save();
+        }
 
-        await nuevoHospedaje.save();
-
+        // Notificación igual que productos
         const notificacion = new Notificacion({
-            idUsuario: publicacion.idHospedero,
-            tipo: 'publicacion',
-            producto: publicacion.Nombre,
+            idUsuario: publicacion.idUsuario,
+            tipo: 'hospedaje',
+            hospedaje: publicacion.Nombre,
             estado: 'aprobado',
-            mensaje: `Tu hospedaje "${publicacion.Nombre}" fue aprobado y publicado.`,
+            mensaje: `Tu hospedaje "${publicacion.Nombre}" ha sido aprobado y publicado exitosamente.`,
             fecha: new Date()
         });
         await notificacion.save();
 
-        res.json({ mensaje: "✅ Publicación aprobada y publicada", publicacion });
+        res.json({ mensaje: "✅ Publicación aprobada", publicacion });
     } catch (error) {
-        console.error("❌ Error al aprobar publicación:", error);
         res.status(500).json({ mensaje: "Error al aprobar publicación", error });
     }
 };
@@ -189,7 +181,6 @@ exports.rechazarPublicacion = async (req, res) => {
         const publicacion = await Publicacion.findOne({ idHotel: id });
 
         if (!publicacion) return res.status(404).json({ mensaje: "Publicación no encontrada" });
-
         if (publicacion.estadoRevision !== 'pendiente') {
             return res.status(400).json({ mensaje: "Esta publicación ya fue revisada" });
         }
@@ -201,10 +192,11 @@ exports.rechazarPublicacion = async (req, res) => {
         publicacion.comentarios = comentarios || '';
         await publicacion.save();
 
+        // Notificación igual que productos
         const notificacion = new Notificacion({
             idUsuario: publicacion.idUsuario,
-            tipo: 'publicacion',
-            producto: publicacion.Nombre,
+            tipo: 'hospedaje',
+            hospedaje: publicacion.Nombre,
             estado: 'rechazado',
             mensaje: `Tu hospedaje "${publicacion.Nombre}" fue rechazado. Motivo: ${publicacion.motivoRechazo}`,
             fecha: new Date()
