@@ -2,16 +2,25 @@ const Publicacion = require('../models/publicacionHospedaje.model');
 const ContactoHospedero = require('../models/contactoHospedero.model');
 const Notificacion = require('../models/notificacion.model');
 
-
-// Generar ID consecutivo tipo "H000001"
-const generarIdHotel = async () => {
-    const ultimo = await Publicacion.findOne().sort({ idHotel: -1 }).lean();
-    let nuevoId = "H000001";
-    if (ultimo && ultimo.idHotel) {
-        const num = parseInt(ultimo.idHotel.slice(1)) + 1;
-        nuevoId = "H" + num.toString().padStart(6, "0");
+// Generar ID consecutivo tipo "H000001" de forma segura
+const generarIdHotelSeguro = async () => {
+    let intentos = 0;
+    let nuevoId;
+    while (intentos < 5) {
+        const ultimo = await Publicacion.findOne().sort({ idHotel: -1 }).lean();
+        if (ultimo && ultimo.idHotel) {
+            const num = parseInt(ultimo.idHotel.slice(1)) + 1;
+            nuevoId = "H" + num.toString().padStart(6, "0");
+        } else {
+            nuevoId = "H000001";
+        }
+        // Verifica si ya existe
+        const existe = await Publicacion.findOne({ idHotel: nuevoId });
+        if (!existe) return nuevoId;
+        intentos++;
     }
-    return nuevoId;
+    // Fallback: usa timestamp
+    return "H" + Date.now().toString().slice(-6);
 };
 
 // Crear nueva publicación de hospedaje
@@ -34,13 +43,14 @@ exports.crearPublicacion = async (req, res) => {
         if (imagenes.length === 0) {
             return res.status(400).json({ mensaje: "Se requiere al menos una imagen del hospedaje" });
         }
-
-        const nuevoId = await generarIdHotel();
+        
+        // Generar ID consecutivo SEGURO
+        const nuevoId = await generarIdHotelSeguro();
 
         const datosPublicacion = {
             idHotel: nuevoId,
             Nombre: datos.Nombre || '',
-             Descripcion: datos.Descripcion || '',
+            Descripcion: datos.Descripcion || '',
             Imagenes: imagenes,
             Ubicacion: datos.Ubicacion || '',
             Horario: datos.Horario || '',
