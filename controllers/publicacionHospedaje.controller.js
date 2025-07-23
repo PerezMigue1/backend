@@ -52,7 +52,7 @@ exports.crearPublicacion = async (req, res) => {
                 lat: parseFloat(datos['Coordenadas.lat']) || 0,
                 lng: parseFloat(datos['Coordenadas.lng']) || 0
             },
-            Categoria: datos.Categoria || 'Económico',
+            Categoria: datos.Categoria || 'Economico',
             idUsuario: datos.idUsuario,
             idHospedero: datos.idHospedero,
             estadoRevision: 'pendiente',
