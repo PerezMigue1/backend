@@ -148,22 +148,22 @@ exports.aprobarPublicacion = async (req, res) => {
 
         // ✅ Copiar a colección Hospedaje
         const nuevoHospedaje = new Hospedaje({
-        idHotel: publicacion.nuevoId || publicacion.idHotel, // Asegura el ID correcto
-        Nombre: publicacion.Nombre,
-        Descripcion: publicacion.Descripcion,
-        Imagenes: publicacion.imagenes,
-        Ubicacion: publicacion.Ubicacion,
-        Horario: publicacion.Horario,
-        Telefono: publicacion.Telefono,
-        Huespedes: publicacion.Huespedes,
-        Precio: publicacion.Precio,
-        Servicios: publicacion.Servicios,
+        idHotel: hospedaje.nuevoId || hospedaje.idHotel, // Asegura el ID correcto
+        Nombre: hospedaje.Nombre,
+        Descripcion: hospedaje.Descripcion,
+        Imagenes: hospedaje.imagenes,
+        Ubicacion: hospedaje.Ubicacion,
+        Horario: hospedaje.Horario,
+        Telefono: hospedaje.Telefono,
+        Huespedes: hospedaje.Huespedes,
+        Precio: hospedaje.Precio,
+        Servicios: hospedaje.Servicios,
         Coordenadas: {
-            lat: publicacion.Coordenadas?.lat,
-            lng: publicacion.Coordenadas?.lng
+            lat: hospedaje.Coordenadas?.lat,
+            lng: hospedaje.Coordenadas?.lng
         },
-        Categoria: publicacion.Categoria,
-        idHospedero: publicacion.idHospedero,
+        Categoria: hospedaje.Categoria,
+        idHospedero: hospedaje.idHospedero,
         });
         
         await nuevoHospedaje.save();
