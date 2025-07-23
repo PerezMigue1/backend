@@ -15,12 +15,10 @@ const generarIdHotelSeguro = async () => {
         } else {
             nuevoId = "H000001";
         }
-        // Verifica si ya existe
         const existe = await Publicacion.findOne({ idHotel: nuevoId });
         if (!existe) return nuevoId;
         intentos++;
     }
-    // Fallback: usa timestamp
     return "H" + Date.now().toString().slice(-6);
 };
 
@@ -44,8 +42,7 @@ exports.crearPublicacion = async (req, res) => {
         if (imagenes.length === 0) {
             return res.status(400).json({ mensaje: "Se requiere al menos una imagen del hospedaje" });
         }
-        
-        // Generar ID consecutivo SEGURO
+
         const nuevoId = await generarIdHotelSeguro();
 
         const datosPublicacion = {
@@ -123,8 +120,8 @@ exports.eliminarPublicacion = async (req, res) => {
         if (!eliminada) return res.status(404).json({ mensaje: "Publicación no encontrada" });
         res.json({ mensaje: "Publicación eliminada correctamente" });
     } catch (error) {
-        res.status(500).json({ mensaje: "Error al eliminar publicación", error });
-    }
+        res.status(500).json({ mensaje: "Error al eliminar publicación", error });
+    }
 };
 
 // Aprobar publicación
@@ -146,30 +143,27 @@ exports.aprobarPublicacion = async (req, res) => {
         publicacion.comentarios = comentarios || '';
         await publicacion.save();
 
-        // ✅ Copiar a colección Hospedaje
         const nuevoHospedaje = new Hospedaje({
-        idHotel: hospedaje.nuevoId || hospedaje.idHotel, // Asegura el ID correcto
-        Nombre: hospedaje.Nombre,
-        Descripcion: hospedaje.Descripcion,
-        Imagenes: hospedaje.imagenes,
-        Ubicacion: hospedaje.Ubicacion,
-        Horario: hospedaje.Horario,
-        Telefono: hospedaje.Telefono,
-        Huespedes: hospedaje.Huespedes,
-        Precio: hospedaje.Precio,
-        Servicios: hospedaje.Servicios,
-        Coordenadas: {
-            lat: hospedaje.Coordenadas?.lat,
-            lng: hospedaje.Coordenadas?.lng
-        },
-        Categoria: hospedaje.Categoria,
-        idHospedero: hospedaje.idHospedero,
+            idHotel: publicacion.idHotel,
+            Nombre: publicacion.Nombre,
+            Descripcion: publicacion.Descripcion,
+            Imagenes: publicacion.Imagenes,
+            Ubicacion: publicacion.Ubicacion,
+            Horario: publicacion.Horario,
+            Telefono: publicacion.Telefono,
+            Huespedes: publicacion.Huespedes,
+            Precio: publicacion.Precio,
+            Servicios: publicacion.Servicios,
+            Coordenadas: {
+                lat: publicacion.Coordenadas?.lat,
+                lng: publicacion.Coordenadas?.lng
+            },
+            Categoria: publicacion.Categoria,
+            idHospedero: publicacion.idHospedero
         });
-        
+
         await nuevoHospedaje.save();
 
-
-        // Notificación
         const notificacion = new Notificacion({
             idUsuario: publicacion.idHospedero,
             tipo: 'publicacion',
@@ -182,6 +176,7 @@ exports.aprobarPublicacion = async (req, res) => {
 
         res.json({ mensaje: "✅ Publicación aprobada y publicada", publicacion });
     } catch (error) {
+        console.error("❌ Error al aprobar publicación:", error);
         res.status(500).json({ mensaje: "Error al aprobar publicación", error });
     }
 };
