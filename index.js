@@ -35,8 +35,10 @@ app.use('/api/contactoChef', require('./routes/contactoChef.routes'));
 app.use('/api/publicacionGastronomia', require('./routes/publicacionGastronomia.routes'));
 app.use('/api/contactoRestaurante', require('./routes/contactoRestaurante.routes'));
 app.use('/api/festividades', require('./routes/festividades.routes'));
-app.use('/api/publicacRestaurantes', require('./routes/publicacionRestaurante.routes'));
+app.use('/api/publicaRestaurantes', require('./routes/publicacionRestaurante.routes'));
 app.use('/api/comidaRestaurante', require('./routes/comidaRestaurante.routes'));
+app.use('/api/restaurantes', require('./routes/restaurante.routes'));
+
 
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
