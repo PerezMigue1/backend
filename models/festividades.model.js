@@ -12,6 +12,7 @@ const fechaSchema = new mongoose.Schema({
 
 const festividadSchema = new mongoose.Schema({
     nombre: { type: String, required: true },
+    Imagen: [String],
     descripcion: String,
     fecha: fechaSchema,
     municipios: [String],
