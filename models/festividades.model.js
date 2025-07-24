@@ -23,4 +23,4 @@ const festividadSchema = new mongoose.Schema({
     fuentes: [fuenteSchema]
 });
 
-module.exports = mongoose.model('Festividad', festividadSchema);
+module.exports = mongoose.model('Festividad', festividadSchema, 'festividades');
