@@ -26,6 +26,21 @@ exports.obtenerContactoPorId = async (req, res) => {
     }
 };
 
+// Obtener contacto por idRestaurante
+exports.obtenerContactoPorIdRestaurante = async (req, res) => {
+    try {
+        const { idRestaurante } = req.params;
+        const contacto = await ContactoRestaurante.findOne({ idRestaurante });
+        if (!contacto) {
+            return res.status(404).json({ message: "Contacto no encontrado" });
+        }
+        res.json(contacto);
+    } catch (error) {
+        console.error("❌ Error al obtener contacto por idRestaurante:", error);
+        res.status(500).json({ message: "Error en el servidor" });
+    }
+};
+
 // Crear nuevo contacto
 exports.crearContacto = async (req, res) => {
     try {

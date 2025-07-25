@@ -12,5 +12,6 @@ router.get("/", contactoController.obtenerContactos);
 router.get("/:id", contactoController.obtenerContactoPorId);
 router.put("/:id", contactoController.actualizarContacto);
 router.delete("/:id", contactoController.eliminarContacto);
+router.get("/por-restaurante/:idRestaurante", contactoController.obtenerContactoPorIdRestaurante);
 
 module.exports = router; 
