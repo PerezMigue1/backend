@@ -14,5 +14,7 @@ router.post("/", verificarToken, upload.array("Imagenes"), controller.crear);
 router.put("/:id", verificarToken, controller.actualizar);
 // Eliminar
 router.delete("/:id", verificarToken, controller.eliminar);
+// Obtener platillos por idRestaurante
+router.get("/por-restaurante/:idRestaurante", controller.obtenerPorRestaurante);
 
 module.exports = router; 

@@ -1,4 +1,5 @@
 const PublicacionRestaurante = require("../models/publicacionRestaurante.model");
+const ComidaRestaurante = require("../models/comidaRestaurante.model");
 
 // Obtener todas las publicaciones
 exports.obtenerTodas = async (req, res) => {
@@ -185,6 +186,55 @@ exports.obtenerEstadisticas = async (req, res) => {
         });
     } catch (error) {
         console.error("❌ Error al obtener estadísticas:", error);
+        res.status(500).json({ message: 'Error en el servidor' });
+    }
+}; 
+
+// Obtener publicación y sus platillos
+exports.obtenerDetalleConPlatillos = async (req, res) => {
+    try {
+        const publicacion = await PublicacionRestaurante.findById(req.params.id);
+        if (!publicacion) {
+            return res.status(404).json({ message: 'Publicación no encontrada' });
+        }
+        const platillos = await ComidaRestaurante.find({ idRestaurante: publicacion.idRestaurante });
+        res.json({ publicacion, platillos });
+    } catch (error) {
+        console.error("❌ Error al obtener detalle de publicación:", error);
+        res.status(500).json({ message: 'Error en el servidor' });
+    }
+};
+
+// Aprobar platillo (mover a comida-restaurante si la publicación está aprobada)
+exports.aprobarPlatillo = async (req, res) => {
+    try {
+        const { id } = req.params; // id del platillo
+        const platillo = await ComidaRestaurante.findById(id);
+        if (!platillo) {
+            return res.status(404).json({ message: 'Platillo no encontrado' });
+        }
+        platillo.estadoRevision = 'aprobado';
+        await platillo.save();
+        res.json({ message: 'Platillo aprobado correctamente', platillo });
+    } catch (error) {
+        console.error("❌ Error al aprobar platillo:", error);
+        res.status(500).json({ message: 'Error en el servidor' });
+    }
+};
+
+// Rechazar platillo
+exports.rechazarPlatillo = async (req, res) => {
+    try {
+        const { id } = req.params; // id del platillo
+        const platillo = await ComidaRestaurante.findById(id);
+        if (!platillo) {
+            return res.status(404).json({ message: 'Platillo no encontrado' });
+        }
+        platillo.estadoRevision = 'rechazado';
+        await platillo.save();
+        res.json({ message: 'Platillo rechazado correctamente', platillo });
+    } catch (error) {
+        console.error("❌ Error al rechazar platillo:", error);
         res.status(500).json({ message: 'Error en el servidor' });
     }
 }; 

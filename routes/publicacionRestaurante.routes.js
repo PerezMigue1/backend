@@ -22,5 +22,11 @@ router.post("/:id/rechazar", verificarToken, controller.rechazar);
 router.get("/estado/:estado", controller.obtenerPorEstado);
 // Estadísticas
 router.get("/estadisticas", controller.obtenerEstadisticas);
+// Obtener detalle de publicación con platillos
+router.get("/:id/detalle-con-platillos", controller.obtenerDetalleConPlatillos);
+// Aprobar platillo
+router.post("/platillo/:id/aprobar", controller.aprobarPlatillo);
+// Rechazar platillo
+router.post("/platillo/:id/rechazar", controller.rechazarPlatillo);
 
 module.exports = router; 

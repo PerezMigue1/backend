@@ -25,6 +25,17 @@ exports.obtenerPorId = async (req, res) => {
     }
 };
 
+// Obtener platillos por idRestaurante
+exports.obtenerPorRestaurante = async (req, res) => {
+    try {
+        const platillos = await ComidaRestaurante.find({ idRestaurante: req.params.idRestaurante });
+        res.json(platillos);
+    } catch (error) {
+        console.error("❌ Error al obtener platillos por restaurante:", error);
+        res.status(500).json({ message: 'Error en el servidor' });
+    }
+};
+
 // Crear nuevo platillo
 exports.crear = async (req, res) => {
     try {
