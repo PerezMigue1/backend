@@ -199,29 +199,35 @@ exports.obtenerPorEstado = async (req, res) => {
     }
 };
 
-// Obtener estadísticas de publicaciones por estado
+// Obtener estadísticas de productos por estado
 exports.obtenerEstadisticas = async (req, res) => {
     try {
-        const [pendientes, aprobadas, rechazadas] = await Promise.all([
-            PublicacionRestaurante.countDocuments({ estadoRevision: 'pendiente' }),
-            PublicacionRestaurante.countDocuments({ estadoRevision: 'aprobado' }),
-            PublicacionRestaurante.countDocuments({ estadoRevision: 'rechazado' })
+        const [pendientes, aprobados, rechazados] = await Promise.all([
+            ProductoRevision.countDocuments({ estadoRevision: 'pendiente' }),
+            ProductoRevision.countDocuments({ estadoRevision: 'aprobado' }),
+            ProductoRevision.countDocuments({ estadoRevision: 'rechazado' })
         ]);
-        const total = pendientes + aprobadas + rechazadas;
+
+        const total = pendientes + aprobados + rechazados;
+
         res.json({
             message: "Estadísticas obtenidas correctamente",
             estadisticas: {
                 total,
                 pendientes,
-                aprobadas,
-                rechazadas
+                aprobados,
+                rechazados
             }
         });
+
     } catch (error) {
         console.error("❌ Error al obtener estadísticas:", error);
-        res.status(500).json({ message: 'Error en el servidor' });
+        res.status(500).json({ 
+            message: 'Error en el servidor',
+            error: error.message 
+        });
     }
-}; 
+};
 
 // Obtener publicación y sus platillos
 exports.obtenerDetalleConPlatillos = async (req, res) => {

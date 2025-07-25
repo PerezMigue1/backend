@@ -21,7 +21,7 @@ router.put("/:id/rechazar", verificarToken, controller.rechazar);
 // Por estado
 router.get("/estado/:estado", controller.obtenerPorEstado);
 // Estadísticas
-router.get("/estadisticas", controller.obtenerEstadisticas);
+router.get('/estadisticas/totales', controller.obtenerEstadisticas);
 // Obtener detalle de publicación con platillos
 router.get("/:id/detalle-con-platillos", controller.obtenerDetalleConPlatillos);
 // Aprobar platillo
