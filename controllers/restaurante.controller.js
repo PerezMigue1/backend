@@ -1,4 +1,5 @@
 const Restaurante = require('../models/restaurante.model');
+const mongoose = require('mongoose');
 
 // Obtener todos los restaurantes
 exports.obtenerRestaurantes = async (req, res) => {
@@ -13,7 +14,13 @@ exports.obtenerRestaurantes = async (req, res) => {
 // Obtener restaurante por idRestaurante
 exports.obtenerRestaurantePorId = async (req, res) => {
   try {
-    const restaurante = await Restaurante.findOne({ idRestaurante: req.params.id });
+    let restaurante;
+    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+      restaurante = await Restaurante.findById(req.params.id);
+    }
+    if (!restaurante) {
+      restaurante = await Restaurante.findOne({ idRestaurante: req.params.id });
+    }
     if (!restaurante) return res.status(404).json({ mensaje: 'Restaurante no encontrado' });
 
     // Adaptar los campos a lo que espera el frontend
