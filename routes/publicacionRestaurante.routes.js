@@ -15,9 +15,9 @@ router.put("/:id", verificarToken, controller.actualizar);
 // Eliminar
 router.delete("/:id", verificarToken, controller.eliminar);
 // Aprobar
-router.post("/:id/aprobar", verificarToken, controller.aprobar);
+router.put("/:id/aprobar", verificarToken, controller.aprobar);
 // Rechazar
-router.post("/:id/rechazar", verificarToken, controller.rechazar);
+router.put("/:id/rechazar", verificarToken, controller.rechazar);
 // Por estado
 router.get("/estado/:estado", controller.obtenerPorEstado);
 // Estadísticas
