@@ -1,5 +1,7 @@
 const PublicacionRestaurante = require("../models/publicacionRestaurante.model");
 const ComidaRestaurante = require("../models/comidaRestaurante.model");
+const Restaurante = require("../models/restaurante.model");
+const Notificacion = require("../models/notificacion.model");
 
 // Obtener todas las publicaciones
 exports.obtenerTodas = async (req, res) => {
@@ -106,9 +108,40 @@ exports.aprobar = async (req, res) => {
         publicacion.revisadoPor = revisadoPor || 'admin';
         publicacion.fechaRevision = new Date();
         await publicacion.save();
+
+        // Mover a la colección final de restaurantes
+        const restauranteData = {
+            Nombre: publicacion.Nombre,
+            Categoria: publicacion.Categoria,
+            Descripcion: publicacion.Descripcion,
+            Ubicacion: publicacion.Ubicacion,
+            RedesSociales: publicacion.RedesSociales,
+            Reseñas: publicacion.Reseñas,
+            Imagenes: publicacion.Imagenes,
+            Horario: publicacion.Horario,
+            Contacto: publicacion.Contacto,
+            Recomendado: publicacion.Recomendado,
+            idRestaurante: publicacion.idRestaurante
+        };
+        const restaurante = new Restaurante(restauranteData);
+        await restaurante.save();
+
+        // Crear notificación para el usuario
+        const notificacion = new Notificacion({
+            idUsuario: publicacion.idUsuario,
+            tipo: 'publicacion',
+            producto: publicacion.Nombre,
+            estado: 'aprobado',
+            mensaje: `Tu restaurante "${publicacion.Nombre}" ha sido aprobado y publicado exitosamente.`,
+            fecha: new Date()
+        });
+        await notificacion.save();
+
         res.json({
             message: "✅ Publicación aprobada correctamente",
-            publicacion
+            publicacion,
+            restaurante,
+            notificacion
         });
     } catch (error) {
         console.error("❌ Error al aprobar publicación:", error);
