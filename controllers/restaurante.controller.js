@@ -15,7 +15,36 @@ exports.obtenerRestaurantePorId = async (req, res) => {
   try {
     const restaurante = await Restaurante.findOne({ idRestaurante: req.params.id });
     if (!restaurante) return res.status(404).json({ mensaje: 'Restaurante no encontrado' });
-    res.json(restaurante);
+
+    // Adaptar los campos a lo que espera el frontend
+    const adaptado = {
+      _id: restaurante._id,
+      Nombre: restaurante.Nombre,
+      Restaurante: restaurante.Nombre, // alias
+      Descripcion: restaurante.Descripcion,
+      descripcion: restaurante.Descripcion, // alias
+      Ubicacion: restaurante.Ubicacion,
+      Horario: restaurante.Horario,
+      HorarioAtencion: restaurante.Horario, // alias
+      horario: restaurante.Horario, // alias
+      Contacto: restaurante.Contacto,
+      contacto: restaurante.Contacto, // alias
+      Telefono: restaurante.Contacto, // alias
+      Correo: restaurante.Contacto, // alias
+      Categoria: restaurante.Categoria,
+      categoria: restaurante.Categoria, // alias
+      RedesSociales: restaurante.RedesSociales,
+      redesSociales: restaurante.RedesSociales, // alias
+      RedesSocialesRestaurante: restaurante.RedesSociales, // alias
+      Reseñas: restaurante.Reseñas,
+      resenas: restaurante.Reseñas, // alias
+      Imagenes: restaurante.Imagenes,
+      Recomendado: restaurante.Recomendado,
+      idRestaurante: restaurante.idRestaurante,
+      createdAt: restaurante.createdAt,
+      updatedAt: restaurante.updatedAt
+    };
+    res.json(adaptado);
   } catch (error) {
     res.status(500).json({ mensaje: 'Error al obtener restaurante', error });
   }
