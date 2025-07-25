@@ -166,9 +166,21 @@ exports.rechazar = async (req, res) => {
         publicacion.motivoRechazo = motivoRechazo || 'No especificado';
         publicacion.fechaRevision = new Date();
         await publicacion.save();
+        // Crear notificación para el usuario
+        const notificacion = new Notificacion({
+            idUsuario: publicacion.idUsuario,
+            tipo: 'publicacion',
+            producto: publicacion.Nombre,
+            estado: 'rechazado',
+            mensaje: `Tu restaurante "${publicacion.Nombre}" ha sido rechazado. Motivo: ${motivoRechazo || 'No especificado'}`,
+            Motivo: motivoRechazo || 'No especificado',
+            fecha: new Date()
+        });
+        await notificacion.save();
         res.json({
             message: "❌ Publicación rechazada correctamente",
-            publicacion
+            publicacion,
+            notificacion
         });
     } catch (error) {
         console.error("❌ Error al rechazar publicación:", error);

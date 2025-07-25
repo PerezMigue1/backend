@@ -2,22 +2,21 @@ const express = require("express");
 const router = express.Router();
 const controller = require("../controllers/publicacionRestaurante.controller");
 const upload = require("../middlewares/uploadCloudinary.middleware");
-const { verificarToken } = require("../middlewares/auth.middleware");
 
 // Obtener todas
 router.get("/", controller.obtenerTodas);
 // Obtener por ID
 router.get("/:id", controller.obtenerPorId);
 // Crear nueva publicación
-router.post("/", verificarToken, upload.array("Imagenes"), controller.crear);
+router.post("/", upload.array("Imagenes"), controller.crear);
 // Actualizar
-router.put("/:id", verificarToken, controller.actualizar);
+router.put("/:id", controller.actualizar);
 // Eliminar
-router.delete("/:id", verificarToken, controller.eliminar);
+router.delete("/:id", controller.eliminar);
 // Aprobar
-router.put("/:id/aprobar", verificarToken, controller.aprobar);
+router.put("/:id/aprobar", controller.aprobar);
 // Rechazar
-router.put("/:id/rechazar", verificarToken, controller.rechazar);
+router.put("/:id/rechazar", controller.rechazar);
 // Por estado
 router.get("/estado/:estado", controller.obtenerPorEstado);
 // Estadísticas
