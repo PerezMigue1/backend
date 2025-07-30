@@ -28,7 +28,9 @@ exports.obtenerPorId = async (req, res) => {
 // Obtener platillos por idRestaurante
 exports.obtenerPorRestaurante = async (req, res) => {
     try {
+        console.log('🔍 Buscando platillos para restaurante:', req.params.idRestaurante);
         const platillos = await ComidaRestaurante.find({ idRestaurante: req.params.idRestaurante });
+        console.log('🔍 Platillos encontrados:', platillos.length);
         res.json(platillos);
     } catch (error) {
         console.error("❌ Error al obtener platillos por restaurante:", error);
@@ -62,6 +64,7 @@ exports.crear = async (req, res) => {
 // Actualizar platillo
 exports.actualizar = async (req, res) => {
     try {
+        console.log('🔍 Actualizando platillo:', req.params.id, 'con datos:', req.body);
         const actualizado = await ComidaRestaurante.findByIdAndUpdate(
             req.params.id,
             req.body,
@@ -70,6 +73,7 @@ exports.actualizar = async (req, res) => {
         if (!actualizado) {
             return res.status(404).json({ message: 'Platillo no encontrado' });
         }
+        console.log('🔍 Platillo actualizado:', actualizado);
         res.json({
             message: "✅ Platillo actualizado correctamente",
             comida: actualizado
