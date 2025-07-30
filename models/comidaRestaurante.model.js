@@ -17,7 +17,8 @@ const ComidaRestauranteSchema = new mongoose.Schema({
     PasosPreparacion: [{ type: String }],
     Restaurante: { type: RestauranteInfoSchema, required: true },
     Imagenes: [{ type: String }],
-    idRestaurante: { type: String, required: true }
+    idRestaurante: { type: String, required: true },
+    estadoRevision: { type: String, default: 'pendiente', enum: ['pendiente', 'aprobado', 'rechazado'] }
 }, { timestamps: true });
 
 module.exports = mongoose.model("ComidaRestaurante", ComidaRestauranteSchema, "comida-restaurante"); 

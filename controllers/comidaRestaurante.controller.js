@@ -29,8 +29,21 @@ exports.obtenerPorId = async (req, res) => {
 exports.obtenerPorRestaurante = async (req, res) => {
     try {
         console.log('🔍 Buscando platillos para restaurante:', req.params.idRestaurante);
+        
+        // Primero, obtener todos los platillos para debuggear
+        const todosLosPlatillos = await ComidaRestaurante.find();
+        console.log('🔍 Todos los platillos en la BD:', todosLosPlatillos.length);
+        todosLosPlatillos.forEach((p, i) => {
+            console.log(`🔍 Platillo ${i + 1}:`, {
+                nombre: p.Nombre,
+                idRestaurante: p.idRestaurante,
+                estado: p.estadoRevision
+            });
+        });
+        
         const platillos = await ComidaRestaurante.find({ idRestaurante: req.params.idRestaurante });
-        console.log('🔍 Platillos encontrados:', platillos.length);
+        console.log('🔍 Platillos encontrados para', req.params.idRestaurante, ':', platillos.length);
+        
         res.json(platillos);
     } catch (error) {
         console.error("❌ Error al obtener platillos por restaurante:", error);
@@ -41,6 +54,11 @@ exports.obtenerPorRestaurante = async (req, res) => {
 // Crear nuevo platillo
 exports.crear = async (req, res) => {
     try {
+        console.log('🔍 Controlador crear platillo ejecutándose');
+        console.log('🔍 Headers recibidos:', req.headers);
+        console.log('🔍 Body recibido:', req.body);
+        console.log('🔍 Files recibidos:', req.files);
+        
         const datos = req.body;
         let imagenes = [];
         if (req.files && Array.isArray(req.files)) {
@@ -49,8 +67,14 @@ exports.crear = async (req, res) => {
             imagenes = Array.isArray(req.body.Imagenes) ? req.body.Imagenes : [req.body.Imagenes];
         }
         datos.Imagenes = imagenes;
+        
+        console.log('🔍 Datos finales a guardar:', datos);
+        
         const nuevaComida = new ComidaRestaurante(datos);
         await nuevaComida.save();
+        
+        console.log('🔍 Platillo guardado exitosamente:', nuevaComida);
+        
         res.status(201).json({
             message: "✅ Platillo creado correctamente",
             comida: nuevaComida

@@ -18,12 +18,18 @@ const verificarToken = (req, res, next) => {
     console.log('🔍 Token extraído:', token);
 
     try {
+        console.log('🔍 JWT_SECRET disponible:', !!process.env.JWT_SECRET);
+        console.log('🔍 JWT_SECRET longitud:', process.env.JWT_SECRET?.length);
+        
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         console.log('🔍 Token decodificado:', decoded);
         req.usuario = decoded; // contiene { id, email, rol, etc. }
+        console.log('🔍 Usuario asignado a req.usuario:', req.usuario);
         next();
     } catch (error) {
         console.log('❌ Error al verificar token:', error.message);
+        console.log('❌ Tipo de error:', error.name);
+        console.log('❌ JWT_SECRET disponible:', !!process.env.JWT_SECRET);
         return res.status(403).json({ mensaje: "Token inválido o expirado" });
     }
 };
@@ -31,7 +37,17 @@ const verificarToken = (req, res, next) => {
 // Middleware adicional para permitir solo ciertos roles
 const permitirRoles = (...rolesPermitidos) => {
     return (req, res, next) => {
-        if (!rolesPermitidos.includes(req.usuario.rol)) {
+        console.log('🔍 Verificando roles:', req.usuario.rol);
+        console.log('🔍 Roles permitidos:', rolesPermitidos);
+        
+        // Verificar si el usuario tiene al menos uno de los roles permitidos
+        const tieneRolPermitido = Array.isArray(req.usuario.rol) 
+            ? req.usuario.rol.some(rol => rolesPermitidos.includes(rol))
+            : rolesPermitidos.includes(req.usuario.rol);
+            
+        console.log('🔍 ¿Tiene rol permitido?:', tieneRolPermitido);
+        
+        if (!tieneRolPermitido) {
             return res.status(403).json({
                 mensaje: "No tienes permiso para realizar esta acción"
             });
