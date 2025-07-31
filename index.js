@@ -41,6 +41,7 @@ app.use('/api/restaurante', require('./routes/restaurante.routes'));
 app.use('/api/negocios', require('./routes/negocio.routes'));
 app.use('/api/misionvision', require('./routes/misionVision.routes'));
 app.use('/api/politicas', require('./routes/politicas.routes'));
+app.use('/api/faq', require('./routes/faq.routes'));
 
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
