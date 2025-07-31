@@ -40,6 +40,7 @@ app.use('/api/comidaRestaurante', require('./routes/comidaRestaurante.routes'));
 app.use('/api/restaurante', require('./routes/restaurante.routes'));
 app.use('/api/negocios', require('./routes/negocio.routes'));
 app.use('/api/misionvision', require('./routes/misionVision.routes'));
+app.use('/api/politicas', require('./routes/politicas.routes'));
 
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
