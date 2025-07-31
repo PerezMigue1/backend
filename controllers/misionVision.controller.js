@@ -3,14 +3,17 @@ const MisionVision = require('../models/misionVision.model');
 // Obtener todas las misiones y visiones
 const obtenerMisionVision = async (req, res) => {
     try {
+        console.log('🔍 Obteniendo misión y visión...');
         const misionVision = await MisionVision.find({ activo: true })
             .sort({ orden: 1, createdAt: -1 });
         
+        console.log('✅ Datos encontrados:', misionVision.length);
         res.status(200).json({
             success: true,
             data: misionVision
         });
     } catch (error) {
+        console.error('❌ Error:', error);
         res.status(500).json({
             success: false,
             message: 'Error al obtener misión y visión',

@@ -31,8 +31,5 @@ const misionVisionSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Índices para mejorar el rendimiento
-misionVisionSchema.index({ tipo: 1, activo: 1 });
-misionVisionSchema.index({ orden: 1 });
 
 module.exports = mongoose.model('MisionVision', misionVisionSchema, 'misionVision'); 
