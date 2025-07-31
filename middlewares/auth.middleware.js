@@ -56,7 +56,33 @@ const permitirRoles = (...rolesPermitidos) => {
     };
 };
 
+// Middleware específico para verificar si es admin
+const verificarAdmin = (req, res, next) => {
+    console.log('🔍 Middleware verificarAdmin ejecutándose');
+    console.log('🔍 Usuario:', req.usuario);
+    
+    if (!req.usuario) {
+        return res.status(401).json({ mensaje: "Usuario no autenticado" });
+    }
+    
+    // Verificar si el usuario es admin
+    const esAdmin = Array.isArray(req.usuario.rol) 
+        ? req.usuario.rol.includes('admin')
+        : req.usuario.rol === 'admin';
+        
+    console.log('🔍 ¿Es admin?:', esAdmin);
+    
+    if (!esAdmin) {
+        return res.status(403).json({
+            mensaje: "Se requieren permisos de administrador"
+        });
+    }
+    
+    next();
+};
+
 module.exports = {
     verificarToken,
-    permitirRoles
+    permitirRoles,
+    verificarAdmin
 };
