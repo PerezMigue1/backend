@@ -35,4 +35,4 @@ const misionVisionSchema = new mongoose.Schema({
 misionVisionSchema.index({ tipo: 1, activo: 1 });
 misionVisionSchema.index({ orden: 1 });
 
-module.exports = mongoose.model('MisionVision', misionVisionSchema); 
+module.exports = mongoose.model('MisionVision', misionVisionSchema, 'misionVision'); 
