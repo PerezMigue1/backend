@@ -21,7 +21,6 @@ app.use('/api/usuarios', require('./routes/usuario.routes'));
 app.use('/api/preguntas', require('./routes/pregunta.routes'));
 app.use('/api/productos', require('./routes/producto.routes')); 
 app.use('/api/categoriaProducto', require('./routes/categoriaProducto.routes'))
-app.use('/api/pedidos', require('./routes/pedido.route'));
 app.use('/api/hospedaje', require('./routes/hospedaje.routes'));
 app.use('/api/lugares', require('./routes/lugarTuristico.route'));
 app.use("/api/artesano", require('./routes/contactoArtesano.routes'));
