@@ -1,0 +1,210 @@
+[
+  {
+    "titulo": "Satisfacción con Servicios Turísticos",
+    "descripcion": "Ayúdanos a mejorar nuestros servicios turísticos en la Huasteca Hidalguense. Tu opinión es muy importante para nosotros.",
+    "categoria": "satisfaccion",
+    "preguntas": [
+      {
+        "pregunta": "¿Qué tipo de turista te consideras?",
+        "tipo": "opcion_unica",
+        "opciones": ["Aventurero", "Cultural", "Gastronómico", "Relax", "Familiar"],
+        "requerida": true,
+        "orden": 0
+      },
+      {
+        "pregunta": "¿Qué servicios turísticos has utilizado en la Huasteca?",
+        "tipo": "opcion_multiple",
+        "opciones": ["Hoteles", "Restaurantes", "Guías turísticos", "Transporte", "Actividades de aventura", "Visitas culturales", "Compras de artesanías"],
+        "requerida": true,
+        "orden": 1
+      },
+      {
+        "pregunta": "¿Cómo calificarías la calidad de los servicios turísticos?",
+        "tipo": "escala_1_5",
+        "opciones": [],
+        "requerida": true,
+        "orden": 2
+      },
+      {
+        "pregunta": "¿Qué aspectos te gustaría que mejoremos?",
+        "tipo": "texto_largo",
+        "opciones": [],
+        "requerida": false,
+        "orden": 3
+      },
+      {
+        "pregunta": "¿Recomendarías la Huasteca Hidalguense a otros viajeros?",
+        "tipo": "opcion_unica",
+        "opciones": ["Definitivamente sí", "Probablemente sí", "No estoy seguro", "Probablemente no", "Definitivamente no"],
+        "requerida": true,
+        "orden": 4
+      }
+    ],
+    "fecha_inicio": "2024-01-01T00:00:00.000Z",
+    "fecha_fin": "2024-12-31T23:59:59.000Z",
+    "estado": "activa",
+    "publica": true,
+    "permitir_anonimos": true,
+    "max_respuestas": 0,
+    "tags": ["turismo", "satisfacción", "servicios", "huasteca"],
+    "imagen": "https://ejemplo.com/imagen-encuesta.jpg",
+    "color_tema": "#9A1E47",
+    "creado_por": "ID_DEL_USUARIO_ADMIN"
+  },
+  {
+    "titulo": "Experiencia en Ecoturismo",
+    "descripcion": "Queremos conocer tu experiencia en nuestros destinos de ecoturismo para mejorar las actividades y servicios.",
+    "categoria": "turismo",
+    "preguntas": [
+      {
+        "pregunta": "¿Qué actividades de ecoturismo has realizado?",
+        "tipo": "opcion_multiple",
+        "opciones": ["Senderismo", "Observación de aves", "Visita a cascadas", "Camping", "Fotografía de naturaleza", "Kayak", "Espeleología"],
+        "requerida": true,
+        "orden": 0
+      },
+      {
+        "pregunta": "¿Cuál fue tu destino favorito?",
+        "tipo": "texto_corto",
+        "opciones": [],
+        "requerida": true,
+        "orden": 1
+      },
+      {
+        "pregunta": "¿Cómo calificarías la dificultad de las actividades?",
+        "tipo": "escala_1_10",
+        "opciones": [],
+        "requerida": true,
+        "orden": 2
+      },
+      {
+        "pregunta": "¿Te sentiste seguro durante las actividades?",
+        "tipo": "opcion_unica",
+        "opciones": ["Muy seguro", "Seguro", "Neutral", "Inseguro", "Muy inseguro"],
+        "requerida": true,
+        "orden": 3
+      },
+      {
+        "pregunta": "¿Qué sugerencias tienes para mejorar la experiencia?",
+        "tipo": "texto_largo",
+        "opciones": [],
+        "requerida": false,
+        "orden": 4
+      }
+    ],
+    "fecha_inicio": "2024-01-01T00:00:00.000Z",
+    "fecha_fin": "2024-12-31T23:59:59.000Z",
+    "estado": "activa",
+    "publica": true,
+    "permitir_anonimos": true,
+    "max_respuestas": 0,
+    "tags": ["ecoturismo", "naturaleza", "aventura", "senderismo"],
+    "imagen": "https://ejemplo.com/imagen-ecoturismo.jpg",
+    "color_tema": "#1E8546",
+    "creado_por": "ID_DEL_USUARIO_ADMIN"
+  },
+  {
+    "titulo": "Gastronomía Local",
+    "descripcion": "Ayúdanos a conocer tu experiencia con la gastronomía local de la Huasteca Hidalguense.",
+    "categoria": "servicios",
+    "preguntas": [
+      {
+        "pregunta": "¿Qué platillos típicos has probado?",
+        "tipo": "opcion_multiple",
+        "opciones": ["Zacahuil", "Enchiladas huastecas", "Tamales", "Cecina", "Queso de puerco", "Aguachile", "Otros"],
+        "requerida": true,
+        "orden": 0
+      },
+      {
+        "pregunta": "¿Cuál fue tu platillo favorito?",
+        "tipo": "texto_corto",
+        "opciones": [],
+        "requerida": true,
+        "orden": 1
+      },
+      {
+        "pregunta": "¿Cómo calificarías la calidad de los restaurantes?",
+        "tipo": "escala_1_5",
+        "opciones": [],
+        "requerida": true,
+        "orden": 2
+      },
+      {
+        "pregunta": "¿Te gustaría que agregáramos más opciones vegetarianas?",
+        "tipo": "opcion_unica",
+        "opciones": ["Sí, definitivamente", "Sí, sería bueno", "No me importa", "No es necesario"],
+        "requerida": true,
+        "orden": 3
+      },
+      {
+        "pregunta": "¿Qué otros platillos te gustaría ver en el menú?",
+        "tipo": "texto_largo",
+        "opciones": [],
+        "requerida": false,
+        "orden": 4
+      }
+    ],
+    "fecha_inicio": "2024-01-01T00:00:00.000Z",
+    "fecha_fin": "2024-12-31T23:59:59.000Z",
+    "estado": "activa",
+    "publica": true,
+    "permitir_anonimos": true,
+    "max_respuestas": 0,
+    "tags": ["gastronomía", "comida", "restaurantes", "platillos"],
+    "imagen": "https://ejemplo.com/imagen-gastronomia.jpg",
+    "color_tema": "#F28B27",
+    "creado_por": "ID_DEL_USUARIO_ADMIN"
+  },
+  {
+    "titulo": "Mejoras en la Plataforma Web",
+    "descripcion": "Queremos mejorar nuestra plataforma web para ofrecerte una mejor experiencia de usuario.",
+    "categoria": "experiencia_usuario",
+    "preguntas": [
+      {
+        "pregunta": "¿Con qué frecuencia usas nuestra plataforma web?",
+        "tipo": "opcion_unica",
+        "opciones": ["Diariamente", "Semanalmente", "Mensualmente", "Ocasionalmente", "Primera vez"],
+        "requerida": true,
+        "orden": 0
+      },
+      {
+        "pregunta": "¿Qué funcionalidades usas más?",
+        "tipo": "opcion_multiple",
+        "opciones": ["Buscar destinos", "Reservar servicios", "Ver fotos", "Leer información", "Contactar proveedores", "Comprar productos"],
+        "requerida": true,
+        "orden": 1
+      },
+      {
+        "pregunta": "¿Cómo calificarías la facilidad de uso de la plataforma?",
+        "tipo": "escala_1_10",
+        "opciones": [],
+        "requerida": true,
+        "orden": 2
+      },
+      {
+        "pregunta": "¿Qué problemas has encontrado al usar la plataforma?",
+        "tipo": "texto_largo",
+        "opciones": [],
+        "requerida": false,
+        "orden": 3
+      },
+      {
+        "pregunta": "¿Qué nuevas funcionalidades te gustaría ver?",
+        "tipo": "texto_largo",
+        "opciones": [],
+        "requerida": false,
+        "orden": 4
+      }
+    ],
+    "fecha_inicio": "2024-01-01T00:00:00.000Z",
+    "fecha_fin": "2024-12-31T23:59:59.000Z",
+    "estado": "activa",
+    "publica": true,
+    "permitir_anonimos": true,
+    "max_respuestas": 0,
+    "tags": ["plataforma", "web", "usabilidad", "mejoras"],
+    "imagen": "https://ejemplo.com/imagen-plataforma.jpg",
+    "color_tema": "#0FA89C",
+    "creado_por": "ID_DEL_USUARIO_ADMIN"
+  }
+] 

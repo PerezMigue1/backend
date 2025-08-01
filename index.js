@@ -42,6 +42,7 @@ app.use('/api/misionvision', require('./routes/misionVision.routes'));
 app.use('/api/politicas', require('./routes/politicas.routes'));
 app.use('/api/faq', require('./routes/faq.routes'));
 app.use('/api/ecoturismo', require('./routes/ecoturismo.routes'));
+app.use('/api/encuestas', require('./routes/encuesta.routes'));
 
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
