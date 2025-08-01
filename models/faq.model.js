@@ -14,7 +14,7 @@ const faqSchema = new mongoose.Schema({
     categoria: {
         type: String,
         required: true,
-        enum: ['general', 'reservas', 'pagos', 'servicios', 'tecnico', 'cuenta'],
+        enum: ['general', 'servicios', 'tecnico', 'cuenta'],
         default: 'general'
     },
     activo: {
