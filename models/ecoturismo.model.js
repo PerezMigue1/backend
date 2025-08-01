@@ -76,10 +76,7 @@ const ecoturismoSchema = new mongoose.Schema({
         type: String,
         maxlength: 500
     },
-    imagenes: [{
-        type: String,
-        maxlength: 500
-    }],
+    imagenes: [{ type: String }],
     precio_entrada: {
         type: Number,
         default: 0
