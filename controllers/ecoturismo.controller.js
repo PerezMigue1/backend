@@ -164,7 +164,7 @@ exports.crearEcoturismo = async (req, res) => {
         }
 
         // Combinar con URLs existentes si las hay
-        const imagenesExistentes = req.body.imagenes ? JSON.parse(req.body.imagenes) : [];
+        const imagenesExistentes = req.body.imagenesExistentes ? JSON.parse(req.body.imagenesExistentes) : [];
         const todasLasImagenes = [...imagenesExistentes, ...imagenes];
 
         // Parsear campos que vienen como JSON strings
@@ -220,7 +220,7 @@ exports.actualizarEcoturismo = async (req, res) => {
         }
 
         // Combinar con URLs existentes si las hay
-        const imagenesExistentes = req.body.imagenes ? JSON.parse(req.body.imagenes) : [];
+        const imagenesExistentes = req.body.imagenesExistentes ? JSON.parse(req.body.imagenesExistentes) : [];
         const todasLasImagenes = [...imagenesExistentes, ...imagenes];
 
         // Parsear campos que vienen como JSON strings

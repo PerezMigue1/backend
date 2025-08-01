@@ -28,38 +28,130 @@ exports.obtenerNegocioPorId = async (req, res) => {
 // ✅ Crear nuevo negocio 
 exports.crearNegocio = async (req, res) => { 
     try { 
-        const nuevoNegocio = new Negocio(req.body); 
+        // Procesar imágenes subidas
+        const imagenes = [];
+        if (req.files && Array.isArray(req.files)) {
+            for (const file of req.files) {
+                imagenes.push(file.path);
+            }
+        }
+
+        // Combinar con URLs existentes si las hay
+        const imagenesExistentes = req.body.imagenesExistentes ? JSON.parse(req.body.imagenesExistentes) : [];
+        const todasLasImagenes = [...imagenesExistentes, ...imagenes];
+
+        // Parsear campos que vienen como JSON strings
+        const datosNegocio = {
+            ...req.body,
+            Imagenes: todasLasImagenes,
+            Ubicacion: req.body.Ubicacion ? JSON.parse(req.body.Ubicacion) : {
+                Estado: '',
+                Municipio: '',
+                Coordenadas: { lat: 0, lng: 0 },
+                Direccion: ''
+            },
+            RedesSociales: req.body.RedesSociales ? JSON.parse(req.body.RedesSociales) : {
+                Facebook: '',
+                Instagram: '',
+                WhatsApp: ''
+            },
+            Reseñas: req.body.Reseñas ? JSON.parse(req.body.Reseñas) : [],
+            Recomendado: req.body.Recomendado === 'true' || req.body.Recomendado === true
+        };
+
+        const nuevoNegocio = new Negocio(datosNegocio); 
         await nuevoNegocio.save(); 
-        res.status(201).json({ 
+        
+        res.status(201).json({
+            success: true,
             message: "Negocio creado correctamente", 
-            negocio: nuevoNegocio 
+            data: nuevoNegocio 
         }); 
     } catch (error) { 
         console.error("❌ Error al crear negocio:", error); 
-        res.status(500).json({ message: "Error interno del servidor" }); 
+        
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({
+                success: false,
+                message: 'Datos de validación incorrectos',
+                errors: Object.values(error.errors).map(err => err.message)
+            });
+        }
+        
+        res.status(500).json({ 
+            success: false,
+            message: "Error interno del servidor" 
+        }); 
     } 
 }; 
  
 // ✅ Actualizar negocio por ID 
 exports.actualizarNegocio = async (req, res) => { 
     try { 
+        // Procesar imágenes subidas
+        const imagenes = [];
+        if (req.files && Array.isArray(req.files)) {
+            for (const file of req.files) {
+                imagenes.push(file.path);
+            }
+        }
+
+        // Combinar con URLs existentes si las hay
+        const imagenesExistentes = req.body.imagenesExistentes ? JSON.parse(req.body.imagenesExistentes) : [];
+        const todasLasImagenes = [...imagenesExistentes, ...imagenes];
+
+        // Parsear campos que vienen como JSON strings
+        const datosNegocio = {
+            ...req.body,
+            Imagenes: todasLasImagenes,
+            Ubicacion: req.body.Ubicacion ? JSON.parse(req.body.Ubicacion) : {
+                Estado: '',
+                Municipio: '',
+                Coordenadas: { lat: 0, lng: 0 },
+                Direccion: ''
+            },
+            RedesSociales: req.body.RedesSociales ? JSON.parse(req.body.RedesSociales) : {
+                Facebook: '',
+                Instagram: '',
+                WhatsApp: ''
+            },
+            Reseñas: req.body.Reseñas ? JSON.parse(req.body.Reseñas) : [],
+            Recomendado: req.body.Recomendado === 'true' || req.body.Recomendado === true
+        };
+
         const negocioActualizado = await Negocio.findByIdAndUpdate( 
             req.params.id, 
-            req.body, 
-            { new: true } 
+            datosNegocio, 
+            { new: true, runValidators: true } 
         ); 
- 
+
         if (!negocioActualizado) { 
-            return res.status(404).json({ message: "Negocio no encontrado" }); 
+            return res.status(404).json({ 
+                success: false,
+                message: "Negocio no encontrado" 
+            }); 
         } 
- 
-        res.json({ 
+
+        res.json({
+            success: true,
             message: "Negocio actualizado correctamente", 
-            negocio: negocioActualizado 
+            data: negocioActualizado 
         }); 
     } catch (error) { 
         console.error("❌ Error al actualizar negocio:", error); 
-        res.status(500).json({ message: "Error en el servidor" }); 
+        
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({
+                success: false,
+                message: 'Datos de validación incorrectos',
+                errors: Object.values(error.errors).map(err => err.message)
+            });
+        }
+        
+        res.status(500).json({ 
+            success: false,
+            message: "Error en el servidor" 
+        }); 
     } 
 }; 
  
@@ -67,18 +159,25 @@ exports.actualizarNegocio = async (req, res) => {
 exports.eliminarNegocio = async (req, res) => { 
     try { 
         const negocioEliminado = await Negocio.findByIdAndDelete(req.params.id); 
- 
+
         if (!negocioEliminado) { 
-            return res.status(404).json({ message: "Negocio no encontrado" }); 
+            return res.status(404).json({ 
+                success: false,
+                message: "Negocio no encontrado" 
+            }); 
         } 
- 
-        res.json({ 
+
+        res.json({
+            success: true,
             message: "Negocio eliminado correctamente", 
-            negocio: negocioEliminado 
+            data: negocioEliminado 
         }); 
     } catch (error) { 
         console.error("❌ Error al eliminar negocio:", error); 
-        res.status(500).json({ message: "Error en el servidor" }); 
+        res.status(500).json({ 
+            success: false,
+            message: "Error en el servidor" 
+        }); 
     } 
 };
 
