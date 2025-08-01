@@ -164,18 +164,41 @@ exports.crearEcoturismo = async (req, res) => {
         }
 
         // Combinar con URLs existentes si las hay
-        const imagenesExistentes = req.body.imagenesExistentes ? JSON.parse(req.body.imagenesExistentes) : [];
+        let imagenesExistentes = [];
+        try {
+            if (req.body.imagenesExistentes) {
+                imagenesExistentes = JSON.parse(req.body.imagenesExistentes);
+            }
+        } catch (error) {
+            console.error('Error parsing imagenesExistentes:', error);
+            imagenesExistentes = [];
+        }
         const todasLasImagenes = [...imagenesExistentes, ...imagenes];
 
-        // Parsear campos que vienen como JSON strings
+        // Parsear campos que vienen como JSON strings con manejo de errores
         const datosEcoturismo = {
             ...req.body,
             imagenes: todasLasImagenes,
-            coordenadas: req.body.coordenadas ? JSON.parse(req.body.coordenadas) : { latitud: 0, longitud: 0 },
-            horarios: req.body.horarios ? JSON.parse(req.body.horarios) : { apertura: '', cierre: '' },
-            contacto: req.body.contacto ? JSON.parse(req.body.contacto) : { telefono: '', email: '', sitio_web: '' },
-            equipamiento: req.body.equipamiento ? JSON.parse(req.body.equipamiento) : [],
-            servicios_disponibles: req.body.servicios_disponibles ? JSON.parse(req.body.servicios_disponibles) : [],
+            coordenadas: req.body.coordenadas ? (() => {
+                try { return JSON.parse(req.body.coordenadas); } 
+                catch (e) { return { latitud: 0, longitud: 0 }; }
+            })() : { latitud: 0, longitud: 0 },
+            horarios: req.body.horarios ? (() => {
+                try { return JSON.parse(req.body.horarios); } 
+                catch (e) { return { apertura: '', cierre: '' }; }
+            })() : { apertura: '', cierre: '' },
+            contacto: req.body.contacto ? (() => {
+                try { return JSON.parse(req.body.contacto); } 
+                catch (e) { return { telefono: '', email: '', sitio_web: '' }; }
+            })() : { telefono: '', email: '', sitio_web: '' },
+            equipamiento: req.body.equipamiento ? (() => {
+                try { return JSON.parse(req.body.equipamiento); } 
+                catch (e) { return []; }
+            })() : [],
+            servicios_disponibles: req.body.servicios_disponibles ? (() => {
+                try { return JSON.parse(req.body.servicios_disponibles); } 
+                catch (e) { return []; }
+            })() : [],
             precio_entrada: parseFloat(req.body.precio_entrada) || 0,
             calificacion: parseFloat(req.body.calificacion) || 0,
             visitas: parseInt(req.body.visitas) || 0,
@@ -220,18 +243,41 @@ exports.actualizarEcoturismo = async (req, res) => {
         }
 
         // Combinar con URLs existentes si las hay
-        const imagenesExistentes = req.body.imagenesExistentes ? JSON.parse(req.body.imagenesExistentes) : [];
+        let imagenesExistentes = [];
+        try {
+            if (req.body.imagenesExistentes) {
+                imagenesExistentes = JSON.parse(req.body.imagenesExistentes);
+            }
+        } catch (error) {
+            console.error('Error parsing imagenesExistentes:', error);
+            imagenesExistentes = [];
+        }
         const todasLasImagenes = [...imagenesExistentes, ...imagenes];
 
-        // Parsear campos que vienen como JSON strings
+        // Parsear campos que vienen como JSON strings con manejo de errores
         const datosEcoturismo = {
             ...req.body,
             imagenes: todasLasImagenes,
-            coordenadas: req.body.coordenadas ? JSON.parse(req.body.coordenadas) : { latitud: 0, longitud: 0 },
-            horarios: req.body.horarios ? JSON.parse(req.body.horarios) : { apertura: '', cierre: '' },
-            contacto: req.body.contacto ? JSON.parse(req.body.contacto) : { telefono: '', email: '', sitio_web: '' },
-            equipamiento: req.body.equipamiento ? JSON.parse(req.body.equipamiento) : [],
-            servicios_disponibles: req.body.servicios_disponibles ? JSON.parse(req.body.servicios_disponibles) : [],
+            coordenadas: req.body.coordenadas ? (() => {
+                try { return JSON.parse(req.body.coordenadas); } 
+                catch (e) { return { latitud: 0, longitud: 0 }; }
+            })() : { latitud: 0, longitud: 0 },
+            horarios: req.body.horarios ? (() => {
+                try { return JSON.parse(req.body.horarios); } 
+                catch (e) { return { apertura: '', cierre: '' }; }
+            })() : { apertura: '', cierre: '' },
+            contacto: req.body.contacto ? (() => {
+                try { return JSON.parse(req.body.contacto); } 
+                catch (e) { return { telefono: '', email: '', sitio_web: '' }; }
+            })() : { telefono: '', email: '', sitio_web: '' },
+            equipamiento: req.body.equipamiento ? (() => {
+                try { return JSON.parse(req.body.equipamiento); } 
+                catch (e) { return []; }
+            })() : [],
+            servicios_disponibles: req.body.servicios_disponibles ? (() => {
+                try { return JSON.parse(req.body.servicios_disponibles); } 
+                catch (e) { return []; }
+            })() : [],
             precio_entrada: parseFloat(req.body.precio_entrada) || 0,
             calificacion: parseFloat(req.body.calificacion) || 0,
             visitas: parseInt(req.body.visitas) || 0,
