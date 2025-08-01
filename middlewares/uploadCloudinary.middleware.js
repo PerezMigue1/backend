@@ -7,7 +7,6 @@ const storage = new CloudinaryStorage({
     cloudinary,
     params: {
         folder: "productos",
-        folder: "ecoturismo",
         allowed_formats: ["jpg", "png", "jpeg", "webp", "gif"],
         transformation: [
             { width: 800, height: 800, crop: "limit" },
@@ -19,7 +18,6 @@ const storage = new CloudinaryStorage({
             const timestamp = Date.now();
             const randomString = Math.random().toString(36).substring(2, 15);
             return `producto_${timestamp}_${randomString}`;
-            return `ecoturismo_${timestamp}_${randomString}`;
 
         }
     },

@@ -167,10 +167,19 @@ exports.crearEcoturismo = async (req, res) => {
         const imagenesExistentes = req.body.imagenes ? JSON.parse(req.body.imagenes) : [];
         const todasLasImagenes = [...imagenesExistentes, ...imagenes];
 
-        // Preparar datos del ecoturismo
+        // Parsear campos que vienen como JSON strings
         const datosEcoturismo = {
             ...req.body,
-            imagenes: todasLasImagenes
+            imagenes: todasLasImagenes,
+            coordenadas: req.body.coordenadas ? JSON.parse(req.body.coordenadas) : { latitud: 0, longitud: 0 },
+            horarios: req.body.horarios ? JSON.parse(req.body.horarios) : { apertura: '', cierre: '' },
+            contacto: req.body.contacto ? JSON.parse(req.body.contacto) : { telefono: '', email: '', sitio_web: '' },
+            equipamiento: req.body.equipamiento ? JSON.parse(req.body.equipamiento) : [],
+            servicios_disponibles: req.body.servicios_disponibles ? JSON.parse(req.body.servicios_disponibles) : [],
+            precio_entrada: parseFloat(req.body.precio_entrada) || 0,
+            calificacion: parseFloat(req.body.calificacion) || 0,
+            visitas: parseInt(req.body.visitas) || 0,
+            destacado: req.body.destacado === 'true' || req.body.destacado === true
         };
 
         const nuevoEcoturismo = new Ecoturismo(datosEcoturismo);
@@ -214,10 +223,19 @@ exports.actualizarEcoturismo = async (req, res) => {
         const imagenesExistentes = req.body.imagenes ? JSON.parse(req.body.imagenes) : [];
         const todasLasImagenes = [...imagenesExistentes, ...imagenes];
 
-        // Preparar datos del ecoturismo
+        // Parsear campos que vienen como JSON strings
         const datosEcoturismo = {
             ...req.body,
-            imagenes: todasLasImagenes
+            imagenes: todasLasImagenes,
+            coordenadas: req.body.coordenadas ? JSON.parse(req.body.coordenadas) : { latitud: 0, longitud: 0 },
+            horarios: req.body.horarios ? JSON.parse(req.body.horarios) : { apertura: '', cierre: '' },
+            contacto: req.body.contacto ? JSON.parse(req.body.contacto) : { telefono: '', email: '', sitio_web: '' },
+            equipamiento: req.body.equipamiento ? JSON.parse(req.body.equipamiento) : [],
+            servicios_disponibles: req.body.servicios_disponibles ? JSON.parse(req.body.servicios_disponibles) : [],
+            precio_entrada: parseFloat(req.body.precio_entrada) || 0,
+            calificacion: parseFloat(req.body.calificacion) || 0,
+            visitas: parseInt(req.body.visitas) || 0,
+            destacado: req.body.destacado === 'true' || req.body.destacado === true
         };
 
         const ecoturismoActualizado = await Ecoturismo.findByIdAndUpdate(
