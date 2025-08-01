@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const ecoturismoController = require('../controllers/ecoturismo.controller');
 const { verificarToken } = require('../middlewares/auth.middleware');
+const upload = require('../middlewares/uploadCloudinary.middleware');
 
 // ===== RUTAS PÚBLICAS =====
 
@@ -26,10 +27,10 @@ router.get('/public/buscar', ecoturismoController.buscarEcoturismo);
 router.get('/admin', verificarToken, ecoturismoController.obtenerTodosEcoturismo);
 
 // Crear nuevo destino
-router.post('/admin', verificarToken, ecoturismoController.crearEcoturismo);
+router.post('/admin', verificarToken, upload.array('imagenes'), ecoturismoController.crearEcoturismo);
 
 // Actualizar destino
-router.put('/admin/:id', verificarToken, ecoturismoController.actualizarEcoturismo);
+router.put('/admin/:id', verificarToken, upload.array('imagenes'), ecoturismoController.actualizarEcoturismo);
 
 // Eliminar destino
 router.delete('/admin/:id', verificarToken, ecoturismoController.eliminarEcoturismo);

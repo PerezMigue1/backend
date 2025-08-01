@@ -155,7 +155,25 @@ exports.obtenerTodosEcoturismo = async (req, res) => {
 // ✅ Crear nuevo destino de ecoturismo (admin)
 exports.crearEcoturismo = async (req, res) => {
     try {
-        const nuevoEcoturismo = new Ecoturismo(req.body);
+        // Procesar imágenes subidas
+        const imagenes = [];
+        if (req.files && Array.isArray(req.files)) {
+            for (const file of req.files) {
+                imagenes.push(file.path);
+            }
+        }
+
+        // Combinar con URLs existentes si las hay
+        const imagenesExistentes = req.body.imagenes ? JSON.parse(req.body.imagenes) : [];
+        const todasLasImagenes = [...imagenesExistentes, ...imagenes];
+
+        // Preparar datos del ecoturismo
+        const datosEcoturismo = {
+            ...req.body,
+            imagenes: todasLasImagenes
+        };
+
+        const nuevoEcoturismo = new Ecoturismo(datosEcoturismo);
         await nuevoEcoturismo.save();
         
         res.status(201).json({
@@ -184,9 +202,27 @@ exports.crearEcoturismo = async (req, res) => {
 // ✅ Actualizar destino de ecoturismo (admin)
 exports.actualizarEcoturismo = async (req, res) => {
     try {
+        // Procesar imágenes subidas
+        const imagenes = [];
+        if (req.files && Array.isArray(req.files)) {
+            for (const file of req.files) {
+                imagenes.push(file.path);
+            }
+        }
+
+        // Combinar con URLs existentes si las hay
+        const imagenesExistentes = req.body.imagenes ? JSON.parse(req.body.imagenes) : [];
+        const todasLasImagenes = [...imagenesExistentes, ...imagenes];
+
+        // Preparar datos del ecoturismo
+        const datosEcoturismo = {
+            ...req.body,
+            imagenes: todasLasImagenes
+        };
+
         const ecoturismoActualizado = await Ecoturismo.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            datosEcoturismo,
             { new: true, runValidators: true }
         );
         
