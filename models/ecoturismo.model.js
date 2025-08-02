@@ -29,7 +29,13 @@ const ecoturismoSchema = new mongoose.Schema({
     categoria: {
         type: String,
         required: true,
-        enum: ['senderismo', 'cascadas', 'observacion_aves', 'camping', 'espeleologia', 'rafting', 'ciclismo', 'fotografia'],
+        enum: [
+            'senderismo', 'cascadas', 'observacion_aves', 'camping', 'espeleologia', 'rafting', 'ciclismo', 'fotografia',
+            'balneario', 'rios', 'parque', 'mirador', 'cuevas', 'montañas', 'lagos', 'playas', 'bosques', 'selva',
+            'desierto', 'volcanes', 'aguas_termales', 'observacion_fauna', 'pesca', 'kayak', 'escalada', 'parapente',
+            'buceo', 'snorkel', 'cabalgata', 'mountain_bike', 'trekking', 'observacion_estrellas', 'botanica',
+            'geologia', 'arqueologia', 'cultura_indigena', 'gastronomia_local', 'artesanias', 'medicina_tradicional', 'otros'
+        ],
         default: 'senderismo'
     },
     dificultad: {
