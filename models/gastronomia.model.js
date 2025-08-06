@@ -26,7 +26,9 @@ const gastronomiaSchema = new mongoose.Schema({
             lat: { type: Number, required: true },
             lng: { type: Number, required: true }
         }
-    }]
+    }],
+    idChef: { type: String },
+    estado: { type: String, enum: ["pendiente", "aceptado"], default: "aceptado" }
 }, {
     timestamps: true 
 });

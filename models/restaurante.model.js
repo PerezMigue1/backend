@@ -29,7 +29,8 @@ const RestauranteSchema = new mongoose.Schema({
   Horario: { type: String },
   Contacto: { type: String },
   Recomendado: { type: Boolean, default: false },
-  idRestaurante: { type: String, required: true, unique: true }
+  idRestaurante: { type: String, required: true, unique: true },
+  estado: { type: String, enum: ["pendiente", "aceptado"], default: "aceptado" }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Restaurante', RestauranteSchema, 'restaurantes'); 

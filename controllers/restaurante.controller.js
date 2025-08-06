@@ -71,19 +71,33 @@ exports.crearRestaurante = async (req, res) => {
   }
 };
 
-// Actualizar restaurante
+// Actualizar restaurante por idRestaurante o _id
 exports.actualizarRestaurante = async (req, res) => {
-  try {
-    const restaurante = await Restaurante.findOneAndUpdate(
-      { idRestaurante: req.params.id },
-      req.body,
-      { new: true }
-    );
-    if (!restaurante) return res.status(404).json({ mensaje: 'Restaurante no encontrado' });
-    res.json(restaurante);
-  } catch (error) {
-    res.status(400).json({ mensaje: 'Error al actualizar restaurante', error });
-  }
+    try {
+        let restaurante;
+
+        // Intentar buscar por ObjectId primero, luego por idRestaurante
+        if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+            // Es un ObjectId válido
+            restaurante = await Restaurante.findByIdAndUpdate(
+                req.params.id,
+                req.body,
+                { new: true }
+            );
+        } else {
+            // Es un idRestaurante personalizado
+            restaurante = await Restaurante.findOneAndUpdate(
+                { idRestaurante: req.params.id },
+                req.body,
+                { new: true }
+            );
+        }
+
+        if (!restaurante) return res.status(404).json({ mensaje: 'Restaurante no encontrado' });
+        res.json(restaurante);
+    } catch (error) {
+        res.status(400).json({ mensaje: 'Error al actualizar restaurante', error });
+    }
 };
 
 // Eliminar restaurante

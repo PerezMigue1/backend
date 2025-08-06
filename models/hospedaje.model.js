@@ -15,7 +15,8 @@ const hospedajeSchema = new mongoose.Schema({
         lng: Number
     },
     Categoria: { type: String, default: 'Economico' },
-    idHospedero: { type: String, required: true }
+    idHospedero: { type: String, required: true },
+    estado: { type: String, enum: ["pendiente", "aceptado"], default: "aceptado" }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Hospedaje', hospedajeSchema, 'hospedaje');

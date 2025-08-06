@@ -40,14 +40,27 @@ exports.crearProducto = async (req, res) => {
     }
 };
 
-// ✅ Actualizar producto por idProducto
+// ✅ Actualizar producto por idProducto o _id
 exports.actualizarProducto = async (req, res) => {
     try {
-        const productoActualizado = await Producto.findOneAndUpdate(
-            { idProducto: req.params.id },
-            req.body,
-            { new: true }
-        );
+        let productoActualizado;
+        
+        // Intentar buscar por ObjectId primero, luego por idProducto
+        if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+            // Es un ObjectId válido
+            productoActualizado = await Producto.findByIdAndUpdate(
+                req.params.id,
+                req.body,
+                { new: true }
+            );
+        } else {
+            // Es un idProducto personalizado
+            productoActualizado = await Producto.findOneAndUpdate(
+                { idProducto: req.params.id },
+                req.body,
+                { new: true }
+            );
+        }
 
         if (!productoActualizado) {
             return res.status(404).json({ message: "Producto no encontrado" });
