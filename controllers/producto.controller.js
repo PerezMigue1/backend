@@ -94,4 +94,3 @@ exports.eliminarProducto = async (req, res) => {
         res.status(500).json({ message: "Error en el servidor" });
     }
 };
-//FINNNNN
