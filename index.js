@@ -16,7 +16,7 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Rutas (api)
+// Rutas
 app.use('/api/usuarios', require('./routes/usuario.routes'));
 app.use('/api/preguntas', require('./routes/pregunta.routes'));
 app.use('/api/productos', require('./routes/producto.routes')); 
@@ -65,4 +65,3 @@ if (require.main === module) {
         console.log(`🚀 Servidor corriendo en http://localhost:${port}`);
     });
 };
-//aaaaa
